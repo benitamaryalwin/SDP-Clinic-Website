@@ -1,95 +1,89 @@
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 struct Patient {
     int id;
     char name[50];
     int age;
     char gender[10];
     char phone[15];
+    struct Patient *next;
 };
-void addPatient() {
-    FILE *fp = fopen("patients.dat", "ab");
-    struct Patient p;
 
-    printf("Enter ID: ");
-    scanf("%d", &p.id);
+struct Patient *front = NULL, *rear = NULL;
 
-    printf("Enter Name: ");
-    scanf(" %[^\n]", p.name);
+void addPatient(int id, char name[], int age, char gender[], char phone[]) {
+    struct Patient *newNode = (struct Patient*)malloc(sizeof(struct Patient));
 
-    printf("Enter Age: ");
-    scanf("%d", &p.age);
+    newNode->id = id;
+    strcpy(newNode->name, name);
+    newNode->age = age;
+    strcpy(newNode->gender, gender);
+    strcpy(newNode->phone, phone);
+    newNode->next = NULL;
 
-    printf("Enter Gender: ");
-    scanf("%s", p.gender);
+    if (rear == NULL) {
+        front = rear = newNode;
+    } else {
+        rear->next = newNode;
+        rear = newNode;
+    }
 
-    printf("Enter Phone: ");
-    scanf("%s", p.phone);
-
-    fwrite(&p, sizeof(p), 1, fp);
-    fclose(fp);
-
-    printf("Patient Added!\n");
+    printf("\n--- Patient Added to Queue ---\n");
+    printf("Name: %s\n", name);
 }
-void viewPatients() {
-    FILE *fp = fopen("patients.dat", "rb");
-    struct Patient p;
 
-    if (fp == NULL) {
-        printf("No records found!\n");
+void servePatient() {
+    if (front == NULL) {
+        printf("No patients in queue\n");
         return;
     }
 
-    while (fread(&p, sizeof(p), 1, fp)) {
-        printf("\nID:%d Name:%s Age:%d Phone:%s\n",
-               p.id, p.name, p.age, p.phone);
-    }
+    struct Patient *temp = front;
 
-    fclose(fp);
+    printf("\n--- Serving Patient ---\n");
+    printf("Name: %s\n", temp->name);
+
+    front = front->next;
+
+    if (front == NULL)
+        rear = NULL;
+
+    free(temp);
 }
-void searchPatient() {
-    FILE *fp = fopen("patients.dat", "rb");
-    struct Patient p;
-    int id, found = 0;
 
-    if (fp == NULL) {
-        printf("No records found!\n");
+void displayQueue() {
+    if (front == NULL) {
+        printf("Queue is empty\n");
         return;
     }
 
-    printf("Enter ID to search: ");
-    scanf("%d", &id);
+    struct Patient *temp = front;
 
-    while (fread(&p, sizeof(p), 1, fp)) {
-        if (p.id == id) {
-            printf("Found: %s Age:%d\n", p.name, p.age);
-            found = 1;
-        }
+    printf("\n--- Patient Queue ---\n");
+
+    while (temp != NULL) {
+        printf("ID: %d | Name: %s | Age: %d\n",
+               temp->id, temp->name, temp->age);
+        temp = temp->next;
     }
-
-    if (!found) printf("Not found!\n");
-
-    fclose(fp);
 }
-#include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char *argv[]) {
-    struct Patient p;
+    int id = atoi(argv[1]);
+    char *name = argv[2];
+    int age = atoi(argv[3]);
+    char *gender = argv[4];
+    char *phone = argv[5];
 
-    FILE *fp = fopen("patients.dat", "ab");
+    addPatient(id, name, age, gender, phone);
 
-    p.id = atoi(argv[1]);
-    strcpy(p.name, argv[2]);
-    p.age = atoi(argv[3]);
-    strcpy(p.gender, argv[4]);
-    strcpy(p.phone, argv[5]);
-
-    fwrite(&p, sizeof(p), 1, fp);
-    fclose(fp);
-
-    printf("Patient Added: %s\n", p.name);
-    printf("Assigned Doctor: General Physician\n");
+    printf("\nAssigned Doctor: ");
+    if (age < 12)
+        printf("Pediatrician\n");
+    else
+        printf("General Physician\n");
 
     return 0;
 }

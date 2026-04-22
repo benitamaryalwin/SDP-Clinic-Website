@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Registration Result</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 25px;
+    width: 400px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 15px;
+}
+
+.output {
+    text-align: left;
+    background: #f9fafb;
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+pre {
+    margin: 0;
+}
+
+a {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    color: white;
+    background: #007BFF;
+    padding: 10px 15px;
+    border-radius: 6px;
+}
+
+a:hover {
+    opacity: 0.9;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+```
+<h2>Patient Registered Successfully</h2>
+
+<div class="output">
+    <pre>{{ output }}</pre>
+</div>
+
+<a href="/">Register Another Patient</a>
+```
+
+</div>
+
+</body>
+</html>
