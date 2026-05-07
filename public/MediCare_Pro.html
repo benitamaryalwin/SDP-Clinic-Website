@@ -1,0 +1,4061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediCare Pro — Clinic Management System</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy:   #0d2b55;
+      --navy2:  #14305e;
+      --teal:   #1a8fa0;
+      --teal2:  #27a9b5;
+      --teal3:  #e8f8fa;
+      --red:    #e05252;
+      --orange: #e07b20;
+      --green:  #1a7a3e;
+      --bg:     #f0f4f8;
+      --white:  #ffffff;
+      --border: #dde4ef;
+      --text:   #2d3748;
+      --muted:  #6b7a99;
+      --shadow: 0 2px 8px rgba(13,43,85,0.10);
+      --shadow2: 0 4px 16px rgba(13,43,85,0.14);
+    }
+
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy);
+      color: #fff;
+      padding: 0 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 34px; height: 34px; background: var(--teal2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .logo h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+    .logo p  { font-size: 11px; color: #aac; margin-top: 1px; }
+    .header-right { font-size: 12px; color: #b0bcd4; text-align: right; }
+    .header-right strong { color: #e8effa; font-size: 13px; }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--navy2);
+      display: flex;
+      gap: 2px;
+      padding: 0 24px;
+      border-bottom: 2px solid rgba(39,169,181,0.20);
+      overflow-x: auto;
+    }
+    nav button {
+      background: none; border: none; color: #b0c4de;
+      padding: 12px 18px; cursor: pointer; font-size: 13.5px;
+      font-weight: 500; white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    nav button:hover { color: #fff; }
+    nav button.active { color: var(--teal2); border-bottom-color: var(--teal2); }
+
+    /* ── Pages ── */
+    .page { display: none; padding: 28px 32px; max-width: 1400px; }
+    .page.active { display: block; }
+
+    /* ── Page header ── */
+    .page-header { margin-bottom: 22px; }
+    .page-header h2 { font-size: 22px; color: var(--navy); font-weight: 700; }
+    .page-header p  { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+    /* ── Stat cards ── */
+    .stats { display: flex; gap: 18px; margin-bottom: 28px; flex-wrap: wrap; }
+    .stat-card {
+      background: var(--white); border-radius: 12px;
+      padding: 20px 24px; box-shadow: var(--shadow);
+      flex: 1; min-width: 150px;
+      border-left: 4px solid var(--teal2);
+      display: flex; gap: 16px; align-items: center;
+    }
+    .stat-card.red  { border-left-color: var(--red); }
+    .stat-card.orange { border-left-color: var(--orange); }
+    .stat-card.green  { border-left-color: #27ae60; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: var(--teal3); flex-shrink: 0; }
+    .stat-card.red .stat-icon    { background: #fde8e8; }
+    .stat-card.orange .stat-icon { background: #fef3e2; }
+    .stat-card.green .stat-icon  { background: #e0f5ea; }
+    .stat-body h3 { font-size: 28px; font-weight: 800; color: var(--navy); }
+    .stat-body p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .stat-body small { font-size: 11px; color: var(--teal); font-weight: 600; }
+
+    /* ── Two-col layout ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── Cards / panels ── */
+    .panel {
+      background: var(--white); border-radius: 12px;
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .panel-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .panel-header h3 { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .panel-body { padding: 0; }
+
+    /* ── Forms ── */
+    .form-panel {
+      background: var(--white); border-radius: 12px;
+      padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px;
+    }
+    .form-panel h3 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .form-row { display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+    .form-row label { display: flex; flex-direction: column; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; flex: 1; min-width: 140px; }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      margin-top: 6px; padding: 9px 12px;
+      border: 1.5px solid var(--border); border-radius: 7px;
+      font-size: 14px; background: #f8faff; color: var(--text);
+      transition: border-color .2s, box-shadow .2s;
+      font-family: inherit;
+    }
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus {
+      outline: none; border-color: var(--teal2);
+      box-shadow: 0 0 0 3px rgba(39,169,181,0.15);
+      background: #fff;
+    }
+    .form-actions { margin-top: 6px; display: flex; gap: 10px; align-items: center; }
+
+    /* ── Buttons ── */
+    .btn { padding: 9px 22px; border: none; border-radius: 7px; cursor: pointer; font-size: 13.5px; font-weight: 600; transition: background .2s, transform .1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary  { background: var(--teal2); color: #fff; }
+    .btn-primary:hover  { background: var(--teal); }
+    .btn-danger   { background: var(--red); color: #fff; }
+    .btn-danger:hover   { background: #c0392b; }
+    .btn-success  { background: #27ae60; color: #fff; }
+    .btn-success:hover  { background: #1e8a47; }
+    .btn-outline  { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover  { border-color: var(--teal2); color: var(--teal2); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: var(--navy); color: #fff; padding: 11px 14px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f5f9ff; }
+    .empty-row td { text-align: center; color: var(--muted); padding: 28px; font-size: 13px; }
+
+    /* ── Badges ── */
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 700; display: inline-block; }
+    .badge-green  { background: #d4f4e2; color: #1a7a3e; }
+    .badge-orange { background: #ffeacc; color: #a05c00; }
+    .badge-red    { background: #fde0e0; color: #c0392b; }
+    .badge-blue   { background: #dceeff; color: #1a4fa0; }
+    .badge-teal   { background: #d0f5f8; color: #0d7a87; }
+    .badge-purple { background: #ede8ff; color: #5a3ea0; }
+
+    /* ── Doctor grid ── */
+    .doctor-grid { display: flex; flex-wrap: wrap; gap: 18px; padding: 20px; }
+    .doctor-card {
+      background: var(--white); border-radius: 12px;
+      padding: 22px 18px; box-shadow: var(--shadow);
+      width: 200px; text-align: center;
+      border: 1.5px solid var(--border);
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .doctor-card:hover { box-shadow: var(--shadow2); border-color: var(--teal2); }
+    .doctor-card .avatar {
+      width: 58px; height: 58px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--navy), var(--teal));
+      color: #fff; font-size: 20px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px; letter-spacing: 1px;
+    }
+    .doctor-card h4 { color: var(--navy); font-size: 14px; font-weight: 700; }
+    .doctor-card .spec { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .doctor-card .status-dot { margin-top: 8px; font-size: 12px; font-weight: 600; }
+    .dot-green  { color: #27ae60; }
+    .dot-orange { color: var(--orange); }
+    .dot-red    { color: var(--red); }
+    .doctor-card .quals { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+    .doctor-card .exp   { font-size: 11.5px; color: var(--teal); margin-top: 2px; font-weight: 600; }
+    .doctor-card .actions { margin-top: 12px; display: flex; gap: 6px; justify-content: center; }
+
+    /* ── Search bar ── */
+    .search-bar { position: relative; }
+    .search-bar input {
+      padding: 9px 12px 9px 36px; border: 1.5px solid var(--border);
+      border-radius: 7px; font-size: 13.5px; background: #f8faff;
+      width: 240px; transition: border-color .2s;
+    }
+    .search-bar input:focus { outline: none; border-color: var(--teal2); background: #fff; }
+    .search-bar::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 14px; }
+
+    /* ── Toast message ── */
+    .toast {
+      display: none; position: fixed; top: 72px; right: 24px; z-index: 999;
+      background: #fff; border-left: 4px solid #27ae60;
+      border-radius: 8px; padding: 13px 18px; box-shadow: var(--shadow2);
+      font-size: 13.5px; font-weight: 600; color: var(--text);
+      min-width: 240px; animation: slideIn .3s ease;
+    }
+    .toast.error { border-left-color: var(--red); }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(13,43,85,0.45); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 14px;
+      padding: 28px; width: 90%; max-width: 560px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.22);
+      animation: popIn .25s ease;
+    }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.93); } to { opacity: 1; transform: scale(1); } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { font-size: 17px; color: var(--navy); font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; }
+    .modal-close:hover { color: var(--red); }
+    .modal-footer { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── Doctor availability list ── */
+    .avail-list { list-style: none; }
+    .avail-list li {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 20px; border-bottom: 1px solid var(--border);
+    }
+    .avail-list li:last-child { border-bottom: none; }
+    .avail-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .avail-info { flex: 1; }
+    .avail-info strong { font-size: 13.5px; color: var(--navy); }
+    .avail-info span { font-size: 11.5px; color: var(--muted); display: block; }
+
+    /* ── Today summary ── */
+    .summary-list { list-style: none; }
+    .summary-list li {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+    }
+    .summary-list li:last-child { border-bottom: none; }
+    .summary-icon { font-size: 22px; }
+    .summary-label { flex: 1; font-size: 13.5px; color: var(--text); }
+    .summary-val { font-size: 16px; font-weight: 800; color: var(--navy); }
+
+    /* ── Recent patients mini table ── */
+    .recent-table td { font-size: 13px; padding: 10px 14px; }
+
+    /* ── Invoice total ── */
+    .inv-total { font-weight: 800; color: var(--navy); }
+
+    /* ── Footer ── */
+    footer { background: var(--navy); color: #7a9ab8; text-align: center; padding: 14px; font-size: 12px; margin-top: 40px; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f0f4f8; }
+    ::-webkit-scrollbar-thumb { background: #b0c4de; border-radius: 3px; }
+
+    /* ── Section divider ── */
+    .section-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin: 26px 0 14px; }
+
+
+
+    /* ── Login / Role Access ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background: linear-gradient(135deg, var(--navy), var(--teal));
+    }
+    body.logged-in #login-screen { display: none; }
+    .app-shell { display: none; }
+    body.logged-in .app-shell { display: block; }
+    .login-card {
+      width: 100%; max-width: 430px; background: #fff; border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.25); padding: 32px;
+    }
+    .login-card .logo-icon { margin-bottom: 12px; }
+    .login-card h2 { color: var(--navy); font-size: 24px; margin-bottom: 4px; }
+    .login-card p { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+    .login-card label { display: flex; flex-direction: column; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
+    .login-card input, .login-card select {
+      margin-top: 7px; padding: 11px 12px; border: 1.5px solid var(--border);
+      border-radius: 9px; font-size: 14px; background: #f8faff; font-family: inherit;
+    }
+    .login-card input:focus, .login-card select:focus { outline: none; border-color: var(--teal2); box-shadow: 0 0 0 3px rgba(39,169,181,.15); background:#fff; }
+    .login-help { background: var(--teal3); border-radius: 10px; padding: 11px 13px; font-size: 12px; color: var(--navy); margin: 14px 0 18px; line-height: 1.5; }
+    .logout-btn { margin-top: 4px; background: transparent; border: 1px solid rgba(255,255,255,.35); color: #fff; border-radius: 6px; padding: 4px 10px; cursor:pointer; font-size: 11px; }
+    .role-lock-note { display:none; background:#fff3cd; color:#7a5200; padding:10px 14px; border-radius:8px; margin-bottom:16px; font-size:13px; }
+
+    /* ── Status select color ── */
+    select option[value="Available"] { color: green; }
+    select option[value="In Consultation"] { color: var(--orange); }
+    select option[value="On Leave"] { color: var(--red); }
+  </style>
+</head>
+<body class="logged-out">
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="logo-icon">&#x2764;</div>
+    <h2>MediCare Pro Login</h2>
+    <p>Select your role to access only the allowed clinic modules.</p>
+    <form id="login-form" onsubmit="loginUser(event)">
+      <label>Role
+        <select id="login-role" onchange="toggleLoginFields()" required>
+          <option value="receptionist">Receptionist</option>
+          <option value="doctor">Doctor</option>
+          <option value="patient">Patient</option>
+        </select>
+      </label>
+        <label id="login-doctor-wrap" style="display:none">Select Doctor
+          <select id="login-doctor"></select>
+        </label>
+      <label id="login-name-wrap"><span id="login-name-label">Staff ID</span>
+      <input type="text" id="login-name" placeholder="REC001" required />
+    </label>
+
+    <label id="patient-mode-wrap" style="display:none">
+      Patient Type
+      <select id="patient-mode" onchange="toggleLoginFields()">
+        <option value="existing">Existing Patient</option>
+        <option value="new">New Patient</option>
+      </select>
+    </label>
+      <label>Password
+        <input type="password" id="login-pass" placeholder="demo123" required />
+      </label>
+      <div class="login-help">
+        Demo password for all roles: <strong>demo123</strong><br>
+        Receptionist: Patients, appointments, billing<br>
+        Doctor: Patient history and consultation entry<br>
+        Patient: Online booking only, no online consultation
+      </div>
+      <button class="btn btn-primary" type="submit" style="width:100%;padding:12px">Login</button>
+    </form>
+  </div>
+</div>
+
+
+<!-- Edit Patient Modal -->
+<div id="edit-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Patient Details</h3>
+      <button class="modal-close" onclick="closeEditModal()">&#x2715;</button>
+    </div>
+    <div class="form-row">
+      <label>Patient ID <input type="text" id="e-pid" readonly style="background:#f0f4f8;color:#999" /></label>
+      <label>Full Name <input type="text" id="e-pname" required /></label>
+    </div>
+    <div class="form-row">
+      <label>Age <input type="number" id="e-page" min="0" max="120" required /></label>
+      <label>Gender
+        <select id="e-pgender">
+          <option>Male</option><option>Female</option><option>Other</option>
+        </select>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Parent / Guardian <input type="text" id="e-pparent" /></label>
+      <label>Contact <input type="text" id="e-pcontact" /></label>
+    </div>
+    <div class="form-row">
+      <label>Doctor <select id="e-pdoctor"></select></label>
+      <label>Visit Type
+        <select id="e-pvisit">
+          <option>First Visit</option><option>Follow Up</option>
+        </select>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Diagnosis <input type="text" id="e-pdiag" /></label>
+      <label>Status
+        <select id="e-pstatus">
+          <option>Active</option><option>Follow Up</option><option>Discharged</option>
+        </select>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditPatient()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Doctor Modal -->
+<div id="doctor-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add New Doctor</h3>
+      <button class="modal-close" onclick="closeDoctorModal()">&#x2715;</button>
+    </div>
+    <div class="form-row">
+      <label>Full Name <input type="text" id="d-name" placeholder="Dr. John Smith" required /></label>
+      <label>Specialization <input type="text" id="d-spec" placeholder="Cardiology" required /></label>
+    </div>
+    <div class="form-row">
+      <label>Qualifications <input type="text" id="d-quals" placeholder="MBBS, MD" /></label>
+      <label>Experience (years) <input type="number" id="d-exp" min="0" placeholder="5" /></label>
+    </div>
+    <div class="form-row">
+      <label>Phone <input type="text" id="d-phone" placeholder="9876543210" /></label>
+      <label>Availability
+        <select id="d-status">
+          <option value="Available">Available</option>
+          <option value="In Consultation">In Consultation</option>
+          <option value="On Leave">On Leave</option>
+        </select>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeDoctorModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDoctor()">Add Doctor</button>
+    </div>
+  </div>
+</div>
+
+<div id="app-shell" class="app-shell">
+
+<!-- ─────────── HEADER ─────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">&#x2764;</div>
+    <div>
+      <h1>MediCare Pro</h1>
+      <p>Clinic Management System — SDP Project 2026</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <strong id="logged-user">Not logged in</strong><br><span id="logged-role">Select role</span><br>
+    <button class="logout-btn" onclick="logoutUser()">Logout</button>
+  </div>
+</header>
+
+<!-- ─────────── NAV ─────────── -->
+<nav>
+  <button class="active" data-page="dashboard" data-roles="receptionist,doctor" onclick="showPage('dashboard', this)">&#x1F3E0; Dashboard</button>
+  <button data-page="patients" data-roles="receptionist,doctor" onclick="showPage('patients', this)">&#x1F465; Patients</button>
+  <button data-page="appointments" data-roles="receptionist,patient" onclick="showPage('appointments', this)">&#x1F4C5; Appointments</button>
+  <button data-page="consultation" data-roles="doctor" onclick="showPage('consultation', this)">&#x1F3E5; Consultation</button>
+  <button data-page="doctors" data-roles="receptionist,doctor,patient" onclick="showPage('doctors', this)">&#x1F9B4; Our Doctors</button>
+  <button data-page="invoice" data-roles="receptionist,doctor" onclick="showPage('invoice', this)">&#x1F4CB; Invoice &amp; Billing</button>
+</nav>
+
+<!-- ═════════════════════════════════════════════
+     DASHBOARD
+════════════════════════════════════════════════ -->
+<div id="dashboard" class="page active">
+  <div class="page-header">
+    <h2>Dashboard Overview</h2>
+    <p>Welcome back, Dr. Admin &mdash; <span id="dash-date"></span></p>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-icon">&#x1F465;</div>
+      <div class="stat-body">
+        <h3 id="stat-patients">0</h3>
+        <p>Total Patients</p>
+        <small id="stat-active-patients"></small>
+      </div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon">&#x1F4C5;</div>
+      <div class="stat-body">
+        <h3 id="stat-appt">0</h3>
+        <p>Appointments</p>
+        <small id="stat-appt-today"></small>
+      </div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">&#x1F9B4;</div>
+      <div class="stat-body">
+        <h3 id="stat-doctors">0</h3>
+        <p>Doctors</p>
+        <small id="stat-doc-avail"></small>
+      </div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">&#x1F4CB;</div>
+      <div class="stat-body">
+        <h3 id="stat-inv">0</h3>
+        <p>Invoices</p>
+        <small id="stat-inv-unpaid"></small>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <!-- Recent Patients -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Recent Patients</h3>
+        <button class="btn btn-primary btn-sm" onclick="showPage('patients', document.querySelectorAll('nav button')[1])">View All</button>
+      </div>
+      <div class="table-wrap">
+        <table class="recent-table">
+          <thead><tr><th>ID</th><th>Name</th><th>Doctor</th><th>Status</th></tr></thead>
+          <tbody id="dash-table">
+            <tr class="empty-row"><td colspan="4">No patients yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Doctor Availability -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Doctor Availability</h3>
+        <button class="btn btn-outline btn-sm" onclick="showPage('doctors', document.querySelectorAll('nav button')[4])">View All</button>
+      </div>
+      <ul class="avail-list" id="avail-list"></ul>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top:24px">
+    <!-- Today's Summary -->
+    <div class="panel">
+      <div class="panel-header"><h3>Today's Summary</h3></div>
+      <ul class="summary-list">
+        <li><span class="summary-icon">&#x1F465;</span><span class="summary-label">Total Patients Registered</span><span class="summary-val" id="sum-patients">0</span></li>
+        <li><span class="summary-icon">&#x1F4C5;</span><span class="summary-label">Appointments Booked</span><span class="summary-val" id="sum-appt">0</span></li>
+        <li><span class="summary-icon">&#x1F3E5;</span><span class="summary-label">Consultations Done</span><span class="summary-val" id="sum-consult">0</span></li>
+        <li><span class="summary-icon">&#x1F4B0;</span><span class="summary-label">Revenue (Invoices)</span><span class="summary-val" id="sum-rev">&#x20B9;0</span></li>
+      </ul>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="panel">
+      <div class="panel-header"><h3>Upcoming Appointments</h3></div>
+      <div class="table-wrap">
+        <table class="recent-table">
+          <thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="dash-appt-table">
+            <tr class="empty-row"><td colspan="4">No appointments yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════
+     PATIENTS
+════════════════════════════════════════════════ -->
+<div id="patients" class="page">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+    <div>
+      <h2>Patient Intake & Appointments</h2>
+      <p>Create appointments for first-time patients or follow-up patients</p>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="patient-search" placeholder="Search patients..." oninput="filterPatients()" />
+    </div>
+  </div>
+
+  <div id="patient-search-panel" class="form-panel">
+    <h3>Find Existing Patient</h3>
+    <div class="form-row">
+      <label>Search by Patient ID / Name / Contact
+        <input type="text" id="existing-search" placeholder="P001 / Arjun / 9876543210" />
+      </label>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" type="button" onclick="findPatient()">Find Patient</button>
+    </div>
+  </div>
+
+  <div id="patient-register-panel" class="form-panel">
+    <h3>Create Patient Appointment</h3>
+    <form onsubmit="submitPatientIntake(event)">
+      <div class="form-row">
+        <label>Patient Type
+          <select id="intake-type" onchange="toggleIntakeType()">
+            <option value="new">First Time / New Patient</option>
+            <option value="followup">Follow Up / Existing Patient</option>
+          </select>
+        </label>
+        <label id="existing-patient-lookup-wrap">Existing Patient ID / Phone
+          <input type="text" id="existing-patient-lookup" placeholder="P001 or 9876543210" />
+        </label>
+        <label>Patient ID
+          <input type="text" id="pid" placeholder="Auto-generated" readonly style="background:#f0f4f8;color:#777" />
+        </label>
+      </div>
+
+      <div id="new-patient-fields">
+        <div class="form-row">
+          <label>Full Name <input type="text" id="pname" placeholder="Arjun Singh" /></label>
+          <label>Age <input type="number" id="page" min="0" max="120" placeholder="Age" /></label>
+          <label>Gender
+            <select id="pgender">
+              <option>Male</option><option>Female</option><option>Other</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Parent / Guardian <input type="text" id="pparent" placeholder="Ramesh Singh" /></label>
+          <label>Contact Number <input type="text" id="pcontact" placeholder="9876543210" /></label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Assigned Doctor <select id="pdoctor" onchange="populatePatientSlots()"></select></label>
+        <label>Appointment Date <input type="date" id="pdate" onchange="populatePatientSlots()" required /></label>
+        <label>Available Slot
+          <select id="pslot" required>
+            <option value="">Select slot</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label>Symptoms / Reason <input type="text" id="pdiag" placeholder="Fever, cough, review..." required /></label>
+      </div>
+
+      <div id="generated-patient-id-box" style="display:none;margin:10px 0;padding:12px;border-radius:10px;background:#e8f8fa;color:#0d7a87;font-weight:700"></div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Create Appointment</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h3>Patient Records</h3>
+      <span id="patient-count" style="font-size:12px;color:var(--muted)">0 patients</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Doctor</th>
+            <th>Visit</th><th>Symptoms/Reason</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="patient-table">
+          <tr class="empty-row"><td colspan="9">No patients registered yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="patient-records-panel" class="panel" style="display:none;margin-top:24px">
+    <div class="panel-header"><h3>Previous Checkup Details</h3></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Doctor</th><th>Diagnosis</th><th>Medication</th><th>Notes</th></tr>
+        </thead>
+        <tbody id="patient-records-table">
+          <tr class="empty-row"><td colspan="5">No previous checkup records yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════
+     APPOINTMENTS
+════════════════════════════════════════════════ -->
+<div id="appointments" class="page">
+  <div id="patient-booking-note" class="role-lock-note">Patient login allows appointment booking only. Consultation records are available only to doctors.</div>
+  <div class="page-header">
+    <h2>Appointments</h2>
+    <p>Manage scheduled appointments and consultation status</p>
+  </div>
+
+  <div id="old-appointment-form-panel" class="form-panel" style="display:none">
+    <h3>Book New Appointment</h3>
+    <form onsubmit="addAppointment(event)">
+      <div class="form-row">
+        <label>Patient Name <input type="text" id="aname" required placeholder="Patient name" /></label>
+        <label>Doctor       <select id="adoctor" onchange="populateAvailableSlots()"></select></label>
+        <label>Date         <input type="date" id="adate" onchange="populateAvailableSlots()" required /></label>
+        <label>Available Slot
+          <select id="atime" required>
+            <option value="">Select slot</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="09:30">9:30 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="10:30">10:30 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="11:30">11:30 AM</option>
+            <option value="16:00">4:00 PM</option>
+            <option value="16:30">4:30 PM</option>
+            <option value="17:00">5:00 PM</option>
+            <option value="17:30">5:30 PM</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Reason for Visit <input type="text" id="areason" placeholder="Regular checkup, Follow-up..." /></label>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Book Appointment</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel" id="appointment-queue-panel">
+    <div class="panel-header"><h3 id="appointments-panel-title">Appointments</h3></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="appt-table">
+          <tr class="empty-row"><td colspan="8">No appointments booked yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════
+     CONSULTATION
+════════════════════════════════════════════════ -->
+<div id="consultation" class="page">
+  <div class="page-header">
+    <h2>Consultation Records</h2>
+    <p>Record patient consultations</p>
+  </div>
+
+  <div class="form-panel">
+    <h3>New Consultation Entry</h3>
+    <form onsubmit="addConsultation(event)">
+      <div class="form-row">
+        <label>Patient Name <input type="text" id="cname" required placeholder="Name" /></label>
+        <label>Age          <input type="number" id="cage" required placeholder="Age" /></label>
+        <label>Gender       <select id="cgender"><option>Male</option><option>Female</option><option>Other</option></select></label>
+        <label>Doctor       <select id="cdoctor"></select></label>
+        <label>Visit Type
+          <select id="cvisit">
+            <option>First Visit</option><option>Follow Up</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Chief Complaints      <input type="text" id="ccomp"  required placeholder="Fever, cough..." /></label>
+        <label>Diagnosis             <input type="text" id="cdiag"  required placeholder="Diagnosis" /></label>
+      </div>
+      <div class="form-row">
+        <label>Medication Advised    <input type="text" id="cmed"   placeholder="Paracetamol 500mg..." /></label>
+        <label>Follow-up Date       <input type="date" id="cfollow" /></label>
+        <label>Additional Notes     <input type="text" id="cnotes"  placeholder="Rest for 3 days..." /></label>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Save Consultation</button>
+        <button class="btn btn-outline" type="button" onclick="undoConsultation()">&#x21A9; Undo Last</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h3>Consultation History</h3></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Name</th><th>Age</th><th>Visit</th><th>Doctor</th><th>Complaints</th><th>Diagnosis</th><th>Medication</th><th>Follow-up</th></tr>
+        </thead>
+        <tbody id="consult-table">
+          <tr class="empty-row"><td colspan="9">No consultations recorded yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════
+     DOCTORS
+════════════════════════════════════════════════ -->
+<div id="doctors" class="page">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+    <div>
+      <h2>Our Doctors</h2>
+      <p>Manage clinic doctors and their availability</p>
+    </div>
+    <button class="btn btn-primary" onclick="openDoctorModal()">+ Add New Doctor</button>
+  </div>
+
+  <div class="stats" id="doc-stats">
+    <div class="stat-card green">
+      <div class="stat-icon">&#x2705;</div>
+      <div class="stat-body"><h3 id="doc-avail-count">0</h3><p>Available</p></div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon">&#x1F4AC;</div>
+      <div class="stat-body"><h3 id="doc-busy-count">0</h3><p>In Consultation</p></div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">&#x1F6AB;</div>
+      <div class="stat-body"><h3 id="doc-leave-count">0</h3><p>On Leave</p></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">&#x1F9B4;</div>
+      <div class="stat-body"><h3 id="doc-total-count">0</h3><p>Total Doctors</p></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h3>Doctor Directory</h3></div>
+    <div class="doctor-grid" id="doctor-grid"></div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════
+     INVOICE & BILLING
+════════════════════════════════════════════════ -->
+<div id="invoice" class="page">
+  <div class="page-header">
+    <h2>Invoice &amp; Billing</h2>
+    <p>Generate and manage patient invoices</p>
+  </div>
+
+  <div class="form-panel" id="invoice-form-panel">
+    <h3>Generate New Invoice</h3>
+    <form onsubmit="addInvoice(event)">
+      <div class="form-row">
+        <label>Patient Name   <input type="text" id="iname" required placeholder="Patient name" /></label>
+        <label>Reference ID   <input type="text" id="iref"  required placeholder="INV001" /></label>
+        <label>Doctor         <select id="idoctor"></select></label>
+      </div>
+      <div class="form-row">
+        <label>Consultation Fee (&#8377;) <input type="number" id="ifee"   required placeholder="500" min="0" /></label>
+        <label>Medicine Charges (&#8377;) <input type="number" id="imed"   placeholder="0" min="0" /></label>
+        <label>Other Charges (&#8377;)   <input type="number" id="iother" placeholder="0" min="0" /></label>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Generate Invoice</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h3>Invoice Records</h3>
+      <span id="inv-summary" style="font-size:12px;color:var(--muted)"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Ref ID</th><th>Patient</th><th>Doctor</th><th>Consult</th><th>Medicine</th><th>Other</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="invoice-table">
+          <tr class="empty-row"><td colspan="9">No invoices generated yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  MediCare Pro &mdash; Clinic Management System &copy; 2026
+</footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════ -->
+<script>
+// ────────────────────────────────
+// DATA STORES
+// ────────────────────────────────
+var patients      = [];
+var appointments  = [];
+var consultations = [];
+var invoices      = [];
+var editIndex     = -1;
+var isFollowUp   = false;
+var followUpIndex = -1;
+var editAppointmentIndex = -1;
+var currentDoctor = "";
+var currentUser   = null;
+
+var roleAccess = {
+  receptionist: ['dashboard', 'patients', 'appointments', 'doctors', 'invoice'],
+  doctor:       ['dashboard', 'patients', 'consultation', 'doctors', 'invoice'],
+  patient:      ['appointments', 'doctors']
+};
+
+var roleLabels = {
+  receptionist: 'Receptionist',
+  doctor: 'Doctor',
+  patient: 'Patient'
+};
+
+
+function togglePatientMode() {
+  toggleLoginFields();
+}
+
+function toggleLoginFields() {
+  var roleEl = document.getElementById('login-role');
+  var role = roleEl ? roleEl.value.toLowerCase() : '';
+
+  var doctorWrap = document.getElementById('login-doctor-wrap');
+  var doctorSelect = document.getElementById('login-doctor');
+  var nameWrap = document.getElementById('login-name-wrap');
+  var nameInput = document.getElementById('login-name');
+  var nameLabel = document.getElementById('login-name-label');
+  var patientModeWrap = document.getElementById('patient-mode-wrap');
+  var patientMode = document.getElementById('patient-mode') ? document.getElementById('patient-mode').value : 'existing';
+  var passInput = document.getElementById('login-pass');
+  var passWrap = passInput ? passInput.closest('label') : null;
+  var submitBtn = document.getElementById('login-submit-btn') || document.querySelector('#login-form button[type="submit"]');
+
+  if (doctorWrap) doctorWrap.style.display = 'none';
+  if (nameWrap) nameWrap.style.display = 'block';
+  if (patientModeWrap) patientModeWrap.style.display = 'none';
+  if (passWrap) passWrap.style.display = 'block';
+  if (nameInput) nameInput.required = true;
+  if (passInput) passInput.required = true;
+  if (submitBtn) submitBtn.textContent = 'Login';
+
+  if (role === 'doctor') {
+    populateLoginDoctors();
+    if (doctorWrap) doctorWrap.style.display = 'flex';
+    if (nameWrap) nameWrap.style.display = 'none';
+    if (nameInput) nameInput.required = false;
+    if (doctorSelect) doctorSelect.required = true;
+  } else if (role === 'patient') {
+    if (patientModeWrap) patientModeWrap.style.display = 'block';
+    if (nameLabel) nameLabel.textContent = 'Patient ID / Phone';
+    if (nameInput) nameInput.placeholder = 'P001 or 9876543210';
+
+    if (patientMode === 'new') {
+      if (nameWrap) nameWrap.style.display = 'none';
+      if (passWrap) passWrap.style.display = 'none';
+      if (nameInput) nameInput.required = false;
+      if (passInput) passInput.required = false;
+      if (submitBtn) submitBtn.textContent = 'Register';
+    }
+  } else {
+    if (nameLabel) nameLabel.textContent = 'Staff ID';
+    if (nameInput) nameInput.placeholder = 'REC001';
+  }
+}
+
+function deleteDoctor(i) {
+  if (i < 0 || i >= doctors.length) return;
+  var d = doctors[i];
+
+  if (!confirm('Delete doctor "' + d.name + '"?')) return;
+
+  var assignedPatient = patients.some(function(p) { return p.doctor === d.name; });
+  var assignedAppointment = appointments.some(function(a) {
+    return a.doctor === d.name && a.status !== 'Cancelled' && a.status !== 'Completed';
+  });
+
+  if (assignedPatient || assignedAppointment) {
+    showToast('Cannot delete doctor with assigned patients/active appointments. Mark unavailable instead.', 'error');
+    return;
+  }
+
+  doctors.splice(i, 1);
+  populateDoctorSelects();
+  if (typeof populateLoginDoctors === 'function') populateLoginDoctors();
+  renderDoctors();
+  updateDashboard();
+  showToast('Doctor deleted successfully.');
+}
+
+function loginUser(e) {
+  e.preventDefault();
+
+  var role = document.getElementById('login-role').value.toLowerCase();
+  var patientMode = document.getElementById('patient-mode') ? document.getElementById('patient-mode').value : 'existing';
+  var name = '';
+
+  if (role === 'patient' && patientMode === 'new') {
+    currentUser = { name: 'New Patient', role: 'patient' };
+    currentDoctor = '';
+
+    document.body.classList.remove('logged-out');
+    document.body.classList.add('logged-in');
+
+    var userEl = document.getElementById('logged-user');
+    var roleEl = document.getElementById('logged-role');
+    if (userEl) userEl.textContent = 'New Patient';
+    if (roleEl) roleEl.textContent = 'Patient';
+
+    applyRoleAccess();
+    showPage('patients', document.querySelectorAll('nav button')[1]);
+    if (typeof prepareNewPatientRegistration === 'function') prepareNewPatientRegistration();
+    showToast('Please complete new patient registration.');
+    return;
+  }
+
+  var pass = document.getElementById('login-pass').value;
+
+  if (role === 'doctor') {
+    name = document.getElementById('login-doctor').value;
+  } else {
+    name = document.getElementById('login-name').value.trim();
+  }
+
+  if (pass !== 'demo123') {
+    showToast('Invalid password. Use demo123 for this project demo.', 'error');
+    return;
+  }
+
+  if (role === 'doctor' && !name) {
+    showToast('Please select a doctor.', 'error');
+    return;
+  }
+
+  if (role !== 'doctor' && !name) {
+    showToast(role === 'patient' ? 'Please enter Patient ID / Phone.' : 'Please enter Staff ID.', 'error');
+    return;
+  }
+
+  if (role === 'patient') {
+    var foundPatient = patients.find(function(p) {
+      return String(p.id || '').toLowerCase() === name.toLowerCase() ||
+             String(p.contact || '') === name;
+    });
+
+    if (!foundPatient) {
+      showToast('Patient not found. Choose New Patient to register.', 'error');
+      return;
+    }
+
+    name = foundPatient.name + ' (' + foundPatient.id + ')';
+  }
+
+  currentUser = { name: name, role: role };
+  currentDoctor = role === 'doctor' ? name : '';
+
+  document.body.classList.remove('logged-out');
+  document.body.classList.add('logged-in');
+
+  var userEl = document.getElementById('logged-user');
+  var roleEl = document.getElementById('logged-role');
+  if (userEl) userEl.textContent = currentUser.name;
+  if (roleEl) roleEl.textContent = role === 'doctor' ? 'Doctor' : roleLabels[role];
+
+  applyRoleAccess();
+  renderPatients();
+  if (typeof renderAppointments === 'function') renderAppointments();
+  if (typeof renderConsultations === 'function') renderConsultations();
+  if (typeof renderDoctors === 'function') renderDoctors();
+  updateDashboard();
+
+  showToast('Logged in as ' + currentUser.name);
+}
+
+function logoutUser() {
+  currentUser = null;
+  currentDoctor = '';
+  document.body.classList.remove('logged-in');
+  document.body.classList.add('logged-out');
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('login-pass').value = '';
+}
+
+function canAccessPage(id) {
+  if (!currentUser) return false;
+  return (roleAccess[currentUser.role] || []).indexOf(id) !== -1;
+}
+
+function applyRoleAccess() {
+  var role = currentUser ? currentUser.role : '';
+
+  var navButtons = document.querySelectorAll('nav button');
+  navButtons.forEach(function(btn) { btn.style.display = 'none'; });
+
+  // nav order: Dashboard, Patients, Appointments, Consultation, Doctors, Invoice
+  if (role === 'receptionist') {
+    [0, 1, 2, 4, 5].forEach(function(i) { if (navButtons[i]) navButtons[i].style.display = ''; });
+  } else if (role === 'doctor') {
+    [0, 1, 2, 3].forEach(function(i) { if (navButtons[i]) navButtons[i].style.display = ''; });
+  } else if (role === 'patient') {
+    [1, 2].forEach(function(i) { if (navButtons[i]) navButtons[i].style.display = ''; });
+  } else {
+    navButtons.forEach(function(btn) { btn.style.display = ''; });
+  }
+
+  var searchPanel = document.getElementById('patient-search-panel');
+  var registerPanel = document.getElementById('patient-register-panel');
+  var pageHeader = document.querySelector('#patients .page-header p');
+
+  if (role === 'doctor') {
+    if (searchPanel) searchPanel.style.display = 'none';
+    if (registerPanel) registerPanel.style.display = 'none';
+    if (pageHeader) pageHeader.textContent = 'Your assigned patients and upcoming appointments';
+  } else if (role === 'patient') {
+    if (searchPanel) searchPanel.style.display = 'none';
+    if (registerPanel) registerPanel.style.display = currentUser && currentUser.name === 'New Patient' ? 'block' : 'none';
+    if (pageHeader) pageHeader.textContent = currentUser && currentUser.name === 'New Patient'
+      ? 'Complete your new patient registration'
+      : 'Your appointment and visit details';
+  } else {
+    if (searchPanel) searchPanel.style.display = 'block';
+    if (registerPanel) registerPanel.style.display = 'block';
+    if (pageHeader) pageHeader.textContent = 'Retrieve existing patients or register first-time patients';
+  }
+}
+
+var doctors = [
+  { name: 'Dr. Rufina J', spec: 'Paediatrics',      quals: 'MBBS, MD',  exp: 10, phone: '9810001111', status: 'Available' },
+  { name: 'Dr. Priya Sharma', spec: 'General Medicine', quals: 'MBBS, MS',  exp: 8,  phone: '9810002222', status: 'In Consultation' },
+  { name: 'Dr. Arun Mehta',   spec: 'Orthopaedics',     quals: 'MBBS, DNB', exp: 12, phone: '9810003333', status: 'Available' },
+  { name: 'Dr. Sunita Verma', spec: 'ENT',              quals: 'MBBS, DLO', exp: 7,  phone: '9810004444', status: 'Available' },
+  { name: 'Dr. Vikram Patel', spec: 'Cardiology',       quals: 'MBBS, DM',  exp: 15, phone: '9810005555', status: 'On Leave' },
+  { name: 'Dr. Meena Iyer',   spec: 'Dermatology',      quals: 'MBBS, MD',  exp: 9,  phone: '9810006666', status: 'Available' }
+];
+
+// ────────────────────────────────
+// HELPERS
+// ────────────────────────────────
+function initials(name) {
+  return name.replace('Dr.','').trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+}
+
+function getStatusBadge(status) {
+  var map = { 'Active': 'badge-green', 'Follow Up': 'badge-orange', 'Discharged': 'badge-blue' };
+  return '<span class="badge ' + (map[status] || 'badge-teal') + '">' + status + '</span>';
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type === 'error' ? ' error' : '');
+  t.style.display = 'block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(function() { t.style.display = 'none'; }, 2800);
+}
+
+function setDate() {
+  var d = new Date();
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('dash-date').textContent =
+    days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+// ────────────────────────────────
+// DOCTOR DROPDOWNS
+// ────────────────────────────────
+function populateDoctorSelects() {
+  ensureDefaultDoctors();
+  var ids = ['pdoctor','adoctor','cdoctor','idoctor','e-pdoctor'];
+  ids.forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    var val = sel.value;
+    sel.innerHTML = '';
+    doctors.forEach(function(d, i) {
+      var opt = document.createElement('option');
+      opt.value = d.name;
+      opt.textContent = d.name + ' (' + d.spec + ')';
+      sel.appendChild(opt);
+    });
+    if (val) sel.value = val;
+  });
+}
+
+// ────────────────────────────────
+// PAGE NAVIGATION
+// ────────────────────────────────
+
+function ensureDefaultDoctors() {
+  if (doctors && doctors.length > 0) return;
+
+  doctors = [
+    { name: 'Dr. Rufina J', spec: 'Paediatrics', quals: 'MBBS, MD', exp: 10, phone: '9810001111', status: 'Available' },
+    { name: 'Dr. Priya Sharma', spec: 'General Medicine', quals: 'MBBS, MS', exp: 8, phone: '9810002222', status: 'In Consultation' },
+    { name: 'Dr. Arun Mehta', spec: 'Orthopaedics', quals: 'MBBS, DNB', exp: 12, phone: '9810003333', status: 'Available' },
+    { name: 'Dr. Sunita Verma', spec: 'ENT', quals: 'MBBS, DLO', exp: 7, phone: '9810004444', status: 'Available' },
+    { name: 'Dr. Vikram Patel', spec: 'Cardiology', quals: 'MBBS, DM', exp: 15, phone: '9810005555', status: 'On Leave' },
+    { name: 'Dr. Meena Iyer', spec: 'Dermatology', quals: 'MBBS, MD', exp: 9, phone: '9810006666', status: 'Available' }
+  ];
+}
+
+function populateLoginDoctors() {
+  ensureDefaultDoctors();
+  var sel = document.getElementById('login-doctor');
+  if (!sel) return;
+  sel.innerHTML = '';
+  doctors.forEach(function(d) {
+    var opt = document.createElement('option');
+    opt.value = d.name;
+    opt.textContent = d.name + ' (' + d.spec + ')';
+    sel.appendChild(opt);
+  });
+}
+
+function toggleDoctorLogin() {
+  toggleLoginFields();
+}
+
+function isDoctorView() {
+  return currentUser && currentUser.role === 'doctor' && currentDoctor;
+}
+
+function doctorFilter(list) {
+  if (!isDoctorView()) return list;
+  return list.filter(function(item) {
+    return item.doctor === currentDoctor || (item.doctor || '').split('(')[0].trim() === currentDoctor;
+  });
+}
+
+function showPage(id, btn) {
+  if (!canAccessPage(id)) {
+    showToast('Access denied for this role.', 'error');
+    return;
+  }
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  updateDashboard();
+}
+
+// ────────────────────────────────
+// DASHBOARD
+// ────────────────────────────────
+function updateDashboard() {
+  // Stat numbers
+  document.getElementById('stat-patients').textContent = patients.length;
+  document.getElementById('stat-appt').textContent     = appointments.length;
+  document.getElementById('stat-doctors').textContent  = doctors.length;
+  document.getElementById('stat-inv').textContent      = invoices.length;
+
+  var activePats = patients.filter(function(p){ return p.status === 'Active'; }).length;
+  var availDocs  = doctors.filter(function(d){ return d.status === 'Available'; }).length;
+  var unpaidInv  = invoices.filter(function(i){ return !i.paid; }).length;
+
+  document.getElementById('stat-active-patients').textContent = activePats + ' Active';
+  document.getElementById('stat-doc-avail').textContent       = availDocs + ' Available';
+  document.getElementById('stat-inv-unpaid').textContent      = unpaidInv + ' Unpaid';
+  document.getElementById('stat-appt-today').textContent      = appointments.length + ' Total';
+
+  // Recent patients (last 5)
+  var tbody = document.getElementById('dash-table');
+  var slice = patients.slice(-5).reverse();
+  if (slice.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No patients yet.</td></tr>';
+  } else {
+    tbody.innerHTML = '';
+    slice.forEach(function(p) {
+      tbody.innerHTML +=
+        '<tr><td><strong>' + p.id + '</strong></td><td>' + p.name + '</td>' +
+        '<td>' + p.doctor.split('(')[0].trim() + '</td>' +
+        '<td>' + getStatusBadge(p.status || 'Active') + '</td></tr>';
+    });
+  }
+
+  // Doctor availability
+  var avail = document.getElementById('avail-list');
+  avail.innerHTML = '';
+  doctors.forEach(function(d) {
+    var dotClass = d.status === 'Available' ? 'dot-green' : (d.status === 'In Consultation' ? 'dot-orange' : 'dot-red');
+    var badge    = d.status === 'Available' ? 'badge-green' : (d.status === 'In Consultation' ? 'badge-orange' : 'badge-red');
+    avail.innerHTML +=
+      '<li>' +
+      '<div class="avail-avatar">' + initials(d.name) + '</div>' +
+      '<div class="avail-info"><strong>' + d.name + '</strong><span>' + d.spec + '</span></div>' +
+      '<span class="badge ' + badge + '">' + d.status + '</span>' +
+      '</li>';
+  });
+
+  // Upcoming appointments (last 4)
+  var aslice = appointments.slice(-4).reverse();
+  var atbody = document.getElementById('dash-appt-table');
+  if (aslice.length === 0) {
+    atbody.innerHTML = '<tr class="empty-row"><td colspan="4">No appointments yet.</td></tr>';
+  } else {
+    atbody.innerHTML = '';
+    aslice.forEach(function(a) {
+      atbody.innerHTML +=
+        '<tr><td>' + a.name + '</td><td>' + a.doctor.split('(')[0].trim() + '</td>' +
+        '<td>' + a.date + '</td><td><span class="badge badge-orange">Scheduled</span></td></tr>';
+    });
+  }
+
+  // Summary
+  document.getElementById('sum-patients').textContent = patients.length;
+  document.getElementById('sum-appt').textContent     = appointments.length;
+  document.getElementById('sum-consult').textContent  = consultations.length;
+  var totalRev = invoices.reduce(function(s, i) { return s + i.total; }, 0);
+  document.getElementById('sum-rev').textContent = '₹' + totalRev.toLocaleString('en-IN');
+
+  // Doctor page stats
+  document.getElementById('doc-avail-count').textContent = doctors.filter(function(d){ return d.status === 'Available'; }).length;
+  document.getElementById('doc-busy-count').textContent  = doctors.filter(function(d){ return d.status === 'In Consultation'; }).length;
+  document.getElementById('doc-leave-count').textContent = doctors.filter(function(d){ return d.status === 'On Leave'; }).length;
+  document.getElementById('doc-total-count').textContent = doctors.length;
+}
+
+// ────────────────────────────────
+// PATIENTS
+// ────────────────────────────────
+
+
+function prepareNewPatientRegistration() {
+  var pid = document.getElementById('pid');
+  if (pid && !pid.value) pid.value = generatePatientId();
+}
+
+function generatePatientId() {
+  var maxNum = 0;
+  patients.forEach(function(p) {
+    var n = parseInt(String(p.id || '').replace(/[^0-9]/g, ''), 10);
+    if (!isNaN(n) && n > maxNum) maxNum = n;
+  });
+  return 'P' + String(maxNum + 1).padStart(3, '0');
+}
+
+function addPatient(e) {
+  e.preventDefault();
+  var id = document.getElementById('pid').value.trim() || generatePatientId();
+
+  if (isFollowUp && followUpIndex >= 0) {
+    var p = patients[followUpIndex];
+    p.doctor = document.getElementById('pdoctor').value;
+    p.visit  = 'Follow Up';
+    p.diag   = document.getElementById('pdiag').value.trim();
+    renderPatients();
+    updateDashboard();
+    e.target.reset();
+    isFollowUp = false;
+    followUpIndex = -1;
+    document.querySelector('#patients form button[type="submit"]').textContent = 'Add Patient';
+    showToast('Follow-up updated successfully!');
+    return;
+  }
+
+  if (patients.find(function(p){ return p.id === id; })) {
+    showToast('Patient ID already exists! Use Find Patient.', 'error'); 
+    return;
+  }
+
+  var p = {
+    id: id,
+    name: document.getElementById('pname').value.trim(),
+    age: document.getElementById('page').value,
+    gender: document.getElementById('pgender').value,
+    parent: document.getElementById('pparent').value.trim(),
+    contact: document.getElementById('pcontact').value.trim(),
+    doctor: document.getElementById('pdoctor').value,
+    visit: 'First Visit',
+    diag: document.getElementById('pdiag').value.trim(),
+    status: 'Active'
+  };
+
+  patients.push(p);
+  renderPatients();
+  updateDashboard();
+  e.target.reset();
+  var idBox = document.getElementById('generated-patient-id-box');
+  if (idBox) {
+    idBox.style.display = 'block';
+    idBox.textContent = 'Registration successful. Your Patient ID is: ' + p.id;
+  }
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Patient ' + p.name + ' registered successfully! Patient ID: ' + p.id);
+}
+
+function renderPatients(list) {
+  var data  = list || doctorFilter(patients);
+  var tbody = document.getElementById('patient-table');
+  document.getElementById('patient-count').textContent = data.length + ' patient' + (data.length !== 1 ? 's' : '');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">' + (list ? 'No matching patients found.' : 'No patients registered yet.') + '</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  data.forEach(function(p, i) {
+    var realIdx = patients.indexOf(p);
+    var visitBadge = p.visit === 'First Visit' ? 'badge-teal' : 'badge-purple';
+    tbody.innerHTML +=
+      '<tr>' +
+      '<td><strong>' + p.id + '</strong></td>' +
+      '<td>' + p.name + '</td>' +
+      '<td>' + p.age + '</td>' +
+      '<td>' + p.gender + '</td>' +
+      '<td>' + p.doctor.split('(')[0].trim() + '</td>' +
+      '<td><span class="badge ' + visitBadge + '">' + p.visit + '</span></td>' +
+      '<td>' + (p.diag || '—') + '</td>' +
+      '<td>' + getStatusBadge(p.status || 'Active') + '</td>' +
+      '<td style="display:flex;gap:6px;flex-wrap:wrap">' +
+        '<button class="btn btn-outline btn-sm" onclick="openEditModal(' + realIdx + ')">&#x270F; Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deletePatient(' + realIdx + ')">Delete</button>' +
+      '</td></tr>';
+  });
+}
+
+function deletePatient(i) {
+  if (!confirm('Delete patient "' + patients[i].name + '"?')) return;
+  patients.splice(i, 1);
+  renderPatients();
+  updateDashboard();
+  showToast('Patient deleted.');
+}
+
+
+function findPatient() {
+  var q = document.getElementById('existing-search').value.toLowerCase().trim();
+  var p = patients.find(function(p) {
+    return p.id.toLowerCase() === q ||
+           p.name.toLowerCase().includes(q) ||
+           (p.contact || '').includes(q);
+  });
+
+  if (!p) {
+    showToast('No patient found. Register as new.', 'error');
+    return;
+  }
+
+  document.getElementById('pid').value = p.id;
+  document.getElementById('pid').readOnly = true;
+  document.getElementById('pname').value = p.name;
+  document.getElementById('page').value = p.age;
+  document.getElementById('pgender').value = p.gender;
+  document.getElementById('pparent').value = p.parent || '';
+  document.getElementById('pcontact').value = p.contact || '';
+  document.getElementById('pdoctor').value = p.doctor;
+  document.getElementById('pdiag').value = p.diag || '';
+
+  isFollowUp = true;
+  followUpIndex = patients.indexOf(p);
+
+  document.querySelector('#patients form button[type="submit"]').textContent = 'Update Follow-Up';
+  showToast('Existing patient loaded.');
+}
+
+function filterPatients() {
+  var q = document.getElementById('patient-search').value.toLowerCase();
+  if (!q) { renderPatients(); return; }
+  renderPatients(doctorFilter(patients).filter(function(p) {
+    return p.name.toLowerCase().includes(q) ||
+           p.id.toLowerCase().includes(q) ||
+           (p.diag || '').toLowerCase().includes(q) ||
+           p.doctor.toLowerCase().includes(q);
+  }));
+}
+
+// ────────────────────────────────
+// EDIT PATIENT MODAL
+// ────────────────────────────────
+function openEditModal(i) {
+  editIndex = i;
+  var p = patients[i];
+  loadDemoData();
+  populateDoctorSelects();
+  populateAvailableSlots();
+  document.getElementById('e-pid').value     = p.id;
+  document.getElementById('e-pname').value   = p.name;
+  document.getElementById('e-page').value    = p.age;
+  document.getElementById('e-pgender').value = p.gender;
+  document.getElementById('e-pparent').value = p.parent || '';
+  document.getElementById('e-pcontact').value= p.contact || '';
+  document.getElementById('e-pdoctor').value = p.doctor;
+  document.getElementById('e-pvisit').value  = p.visit;
+  document.getElementById('e-pdiag').value   = p.diag || '';
+  document.getElementById('e-pstatus').value = p.status || 'Active';
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+  editIndex = -1;
+}
+
+function saveEditPatient() {
+  if (editIndex < 0) return;
+  var p = patients[editIndex];
+  p.name    = document.getElementById('e-pname').value.trim();
+  p.age     = document.getElementById('e-page').value;
+  p.gender  = document.getElementById('e-pgender').value;
+  p.parent  = document.getElementById('e-pparent').value.trim();
+  p.contact = document.getElementById('e-pcontact').value.trim();
+  p.doctor  = document.getElementById('e-pdoctor').value;
+  p.visit   = document.getElementById('e-pvisit').value;
+  p.diag    = document.getElementById('e-pdiag').value.trim();
+  p.status  = document.getElementById('e-pstatus').value;
+  closeEditModal();
+  renderPatients();
+  updateDashboard();
+  showToast('Patient details updated successfully!');
+}
+
+// ────────────────────────────────
+
+// Clinic appointment slots
+var clinicSlots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '16:00', '16:30', '17:00', '17:30'];
+
+function formatSlot(t) {
+  var parts = t.split(':');
+  var h = parseInt(parts[0], 10);
+  var m = parts[1];
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  var hr = h % 12 || 12;
+  return hr + ':' + m + ' ' + ampm;
+}
+
+function isSlotBooked(doctor, date, slot) {
+  return appointments.some(function(a, idx) {
+    return idx !== editAppointmentIndex &&
+           a.doctor === doctor &&
+           a.date === date &&
+           a.time === slot &&
+           a.status !== 'Cancelled';
+  });
+}
+
+function populateAvailableSlots() {
+  var doctorEl = document.getElementById('adoctor');
+  var dateEl = document.getElementById('adate');
+  var sel = document.getElementById('atime');
+
+  if (!sel) return;
+
+  var doctor = doctorEl ? doctorEl.value : '';
+  var date = dateEl ? dateEl.value : '';
+
+  sel.innerHTML = '<option value="">Select slot</option>';
+
+  clinicSlots.forEach(function(slot) {
+    var opt = document.createElement('option');
+    opt.value = slot;
+    opt.textContent = formatSlot(slot);
+
+    if (doctor && date && isSlotBooked(doctor, date, slot)) {
+      opt.disabled = true;
+      opt.textContent += ' - Booked';
+    }
+
+    sel.appendChild(opt);
+  });
+}
+
+function editAppointment(i) {
+  var a = appointments[i];
+  editAppointmentIndex = i;
+
+  document.getElementById('aname').value = a.name;
+  document.getElementById('adoctor').value = a.doctor;
+  document.getElementById('adate').value = a.date;
+  document.getElementById('areason').value = a.reason || '';
+
+  populateAvailableSlots();
+  document.getElementById('atime').value = a.time;
+
+  var btn = document.querySelector('#appointments form button[type="submit"]');
+  if (btn) btn.textContent = 'Update Appointment';
+
+  showToast('Appointment loaded for editing.');
+}
+
+function cancelAppointment(i) {
+  if (!confirm('Cancel appointment for ' + appointments[i].name + '?')) return;
+  appointments[i].status = 'Cancelled';
+  renderAppointments();
+  updateDashboard();
+  populateAvailableSlots();
+  showToast('Appointment cancelled.');
+}
+
+
+// APPOINTMENTS 
+// ────────────────────────────────
+function addAppointment(e) {
+  e.preventDefault();
+
+  var a = {
+    name: document.getElementById('aname').value.trim(),
+    doctor: document.getElementById('adoctor').value,
+    date: document.getElementById('adate').value,
+    time: document.getElementById('atime').value,
+    reason: document.getElementById('areason').value.trim(),
+    status: 'Scheduled'
+  };
+
+  if (!a.time) {
+    showToast('Please select an available slot.', 'error');
+    return;
+  }
+
+  if (isSlotBooked(a.doctor, a.date, a.time)) {
+    showToast('This slot is already booked. Please choose another slot.', 'error');
+    populateAvailableSlots();
+    return;
+  }
+
+  if (editAppointmentIndex >= 0) {
+    appointments[editAppointmentIndex] = a;
+    editAppointmentIndex = -1;
+    document.querySelector('#appointments form button[type="submit"]').textContent = 'Book Appointment';
+    showToast('Appointment updated successfully!');
+  } else {
+    appointments.push(a);
+    showToast('Appointment booked for ' + a.name + '!');
+  }
+
+  renderAppointments();
+  updateDashboard();
+  e.target.reset();
+  populateAvailableSlots();
+}
+
+function serveAppointment() {
+  if (appointments.length === 0) { showToast('No appointments in queue.', 'error'); return; }
+  var served = appointments.shift(); // Dequeue 
+  renderAppointments();
+  updateDashboard();
+  showToast('Now serving: ' + served.name + ' with ' + served.doctor.split('(')[0].trim());
+}
+
+function renderAppointments() {
+  var tbody = document.getElementById('appt-table');
+  if (appointments.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No appointments booked yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  appointments.forEach(function(a, i) {
+    tbody.innerHTML +=
+      '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + a.name + '</strong></td>' +
+      '<td>' + a.doctor.split('(')[0].trim() + '</td>' +
+      '<td>' + a.date + '</td>' +
+      '<td>' + a.time + '</td>' +
+      '<td>' + (a.reason || '—') + '</td>' +
+      '<td><span class="badge ' + (a.status === 'Cancelled' ? 'badge-red' : 'badge-orange') + '">' + (a.status || 'Scheduled') + '</span></td>' +
+      '<td>' + (i === 0 ? '<button class="btn btn-success btn-sm" onclick="serveAppointment()">&#x25B6; Serve Next</button>' : '') + '</td>' +
+      '</tr>';
+  });
+}
+
+// ────────────────────────────────
+// CONSULTATION 
+// ────────────────────────────────
+function addConsultation(e) {
+  e.preventDefault();
+  var c = {
+    name:   document.getElementById('cname').value.trim(),
+    visit:  document.getElementById('cvisit').value,
+    age:    document.getElementById('cage').value,
+    gender: document.getElementById('cgender').value,
+    doctor: document.getElementById('cdoctor').value,
+    comp:   document.getElementById('ccomp').value.trim(),
+    diag:   document.getElementById('cdiag').value.trim(),
+    med:    document.getElementById('cmed').value.trim(),
+    follow: document.getElementById('cfollow').value,
+    notes:  document.getElementById('cnotes').value.trim()
+  };
+  consultations.push(c); // Stack push
+  renderConsultations();
+  updateDashboard();
+  e.target.reset();
+  showToast('Consultation saved for ' + c.name + '!');
+}
+
+function undoConsultation() {
+  if (consultations.length === 0) { showToast('No consultations to undo.', 'error'); return; }
+  var removed = consultations.pop(); // Stack pop
+  renderConsultations();
+  updateDashboard();
+  showToast('Undo: Removed last consultation for ' + removed.name + '.');
+}
+
+function renderConsultations() {
+  var tbody = document.getElementById('consult-table');
+  if (consultations.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No consultations recorded yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  // Display stack top-first (latest first = LIFO view)
+  doctorFilter(consultations).slice().reverse().forEach(function(c, i) {
+    tbody.innerHTML +=
+      '<tr>' +
+      '<td>' + (consultations.length - i) + '</td>' +
+      '<td><strong>' + c.name + '</strong></td>' +
+      '<td>' + c.age + '</td>' +
+      '<td><span class="badge ' + (c.visit === 'First Visit' ? 'badge-teal' : 'badge-purple') + '">' + (c.visit || 'First Visit') + '</span></td>' +
+      '<td>' + c.doctor.split('(')[0].trim() + '</td>' +
+      '<td>' + c.comp + '</td>' +
+      '<td>' + c.diag + '</td>' +
+      '<td>' + (c.med || '—') + '</td>' +
+      '<td>' + (c.follow ? c.follow : '—') + '</td>' +
+      '</tr>';
+  });
+}
+
+// ────────────────────────────────
+// DOCTORS
+// ────────────────────────────────
+function openDoctorModal() {
+  document.getElementById('doctor-modal').classList.add('open');
+}
+function closeDoctorModal() {
+  document.getElementById('doctor-modal').classList.remove('open');
+  ['d-name','d-spec','d-quals','d-phone'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('d-exp').value = '';
+  document.getElementById('d-status').value = 'Available';
+}
+
+function saveDoctor() {
+  var name  = document.getElementById('d-name').value.trim();
+  var spec  = document.getElementById('d-spec').value.trim();
+  var quals = document.getElementById('d-quals').value.trim();
+  var exp   = document.getElementById('d-exp').value;
+  var phone = document.getElementById('d-phone').value.trim();
+  var status= document.getElementById('d-status').value;
+  if (!name || !spec) { showToast('Name and Specialization are required.', 'error'); return; }
+  // Ensure "Dr." prefix
+  if (!name.startsWith('Dr.')) name = 'Dr. ' + name;
+  doctors.push({ name: name, spec: spec, quals: quals || 'MBBS', exp: parseInt(exp) || 0, phone: phone, status: status });
+  closeDoctorModal();
+  renderDoctors();
+  populateDoctorSelects();
+  updateDashboard();
+  showToast('Dr. ' + name.replace('Dr. ','') + ' added to clinic!');
+}
+
+function deleteDoctorCard(i) {
+  if (!confirm('Remove Dr. ' + doctors[i].name + ' from the clinic?')) return;
+  doctors.splice(i, 1);
+  renderDoctors();
+  populateDoctorSelects();
+  updateDashboard();
+  showToast('Doctor removed.');
+}
+
+function toggleDoctorStatus(i) {
+  var d = doctors[i];
+  var cycle = ['Available', 'In Consultation', 'On Leave'];
+  var cur = cycle.indexOf(d.status);
+  d.status = cycle[(cur + 1) % cycle.length];
+  renderDoctors();
+  updateDashboard();
+}
+
+function renderDoctors() {
+  var grid = document.getElementById('doctor-grid');
+  if (doctors.length === 0) {
+    grid.innerHTML = '<p style="padding:24px;color:var(--muted)">No doctors added yet. Click "Add New Doctor" to get started.</p>';
+    return;
+  }
+  grid.innerHTML = '';
+  doctors.forEach(function(d, i) {
+    var dotClass = d.status === 'Available' ? 'dot-green' : (d.status === 'In Consultation' ? 'dot-orange' : 'dot-red');
+    var dot = d.status === 'Available' ? '&#9679;' : (d.status === 'On Leave' ? '&#9679;' : '&#9679;');
+    grid.innerHTML +=
+      '<div class="doctor-card">' +
+        '<div class="avatar">' + initials(d.name) + '</div>' +
+        '<h4>' + d.name + '</h4>' +
+        '<div class="spec">' + d.spec + '</div>' +
+        '<div class="status-dot ' + dotClass + '">' + dot + ' ' + d.status + '</div>' +
+        '<div class="quals">' + (d.quals || 'MBBS') + '</div>' +
+        '<div class="exp">' + (d.exp || 0) + ' yrs experience</div>' +
+        (d.phone ? '<div class="quals">&#x1F4DE; ' + d.phone + '</div>' : '') +
+        '<div class="actions">' +
+          '<button class="btn btn-outline btn-sm" onclick="toggleDoctorStatus(' + i + ')" title="Toggle Status">&#x21C4;</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteDoctorCard(' + i + ')">&#x2715;</button>' +
+        '</div>' +
+      '</div>';
+  });
+
+  // Update counts
+  document.getElementById('doc-avail-count').textContent = doctors.filter(function(d){ return d.status === 'Available'; }).length;
+  document.getElementById('doc-busy-count').textContent  = doctors.filter(function(d){ return d.status === 'In Consultation'; }).length;
+  document.getElementById('doc-leave-count').textContent = doctors.filter(function(d){ return d.status === 'On Leave'; }).length;
+  document.getElementById('doc-total-count').textContent = doctors.length;
+}
+
+// ────────────────────────────────
+// INVOICE
+// ────────────────────────────────
+function addInvoice(e) {
+  e.preventDefault();
+  var fee   = parseInt(document.getElementById('ifee').value)   || 0;
+  var med   = parseInt(document.getElementById('imed').value)   || 0;
+  var other = parseInt(document.getElementById('iother').value) || 0;
+  var inv = {
+    ref:    document.getElementById('iref').value.trim(),
+    name:   document.getElementById('iname').value.trim(),
+    doctor: document.getElementById('idoctor').value,
+    fee:    fee, med: med, other: other,
+    total:  fee + med + other,
+    paid:   false
+  };
+  invoices.push(inv);
+  renderInvoices();
+  updateDashboard();
+  e.target.reset();
+  showToast('Invoice ' + inv.ref + ' generated!');
+}
+
+function markPaid(i) {
+  invoices[i].paid = true;
+  renderInvoices();
+  updateDashboard();
+  showToast('Invoice marked as paid!');
+}
+
+function deleteInvoice(i) {
+  if (!confirm('Delete invoice ' + invoices[i].ref + '?')) return;
+  invoices.splice(i, 1);
+  renderInvoices();
+  updateDashboard();
+}
+
+function renderInvoices() {
+  var tbody = document.getElementById('invoice-table');
+  if (invoices.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No invoices generated yet.</td></tr>';
+    document.getElementById('inv-summary').textContent = '';
+    return;
+  }
+  var totalRev  = invoices.reduce(function(s, i) { return s + i.total; }, 0);
+  var unpaid    = invoices.filter(function(i){ return !i.paid; }).length;
+  document.getElementById('inv-summary').textContent =
+    '₹' + totalRev.toLocaleString('en-IN') + ' total · ' + unpaid + ' unpaid';
+  tbody.innerHTML = '';
+  invoices.forEach(function(inv, i) {
+    tbody.innerHTML +=
+      '<tr>' +
+      '<td><strong>' + inv.ref + '</strong></td>' +
+      '<td>' + inv.name + '</td>' +
+      '<td>' + inv.doctor.split('(')[0].trim() + '</td>' +
+      '<td>&#8377;' + inv.fee + '</td>' +
+      '<td>&#8377;' + inv.med + '</td>' +
+      '<td>&#8377;' + inv.other + '</td>' +
+      '<td class="inv-total">&#8377;' + inv.total.toLocaleString('en-IN') + '</td>' +
+      '<td>' + (inv.paid ? '<span class="badge badge-green">Paid</span>' : '<span class="badge badge-red">Unpaid</span>') + '</td>' +
+      '<td style="display:flex;gap:5px;flex-wrap:wrap">' +
+        (!inv.paid ? '<button class="btn btn-success btn-sm" onclick="markPaid(' + i + ')">Mark Paid</button>' : '') +
+        '<button class="btn btn-danger btn-sm" onclick="deleteInvoice(' + i + ')">&#x2715;</button>' +
+      '</td></tr>';
+  });
+}
+
+// ────────────────────────────────
+// CLOSE MODAL ON OVERLAY CLICK
+// ────────────────────────────────
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+document.getElementById('doctor-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDoctorModal();
+});
+
+// ────────────────────────────────
+// INIT
+// ────────────────────────────────
+setDate();
+populateDoctorSelects();
+populateLoginDoctors();
+toggleDoctorLogin();
+  togglePatientMode();
+renderDoctors();
+updateDashboard();
+
+window.addEventListener('load', function() {
+  if (typeof populateLoginDoctors === 'function') populateLoginDoctors();
+  if (typeof toggleDoctorLogin === 'function') toggleDoctorLogin();
+  if (typeof populateAvailableSlots === 'function') populateAvailableSlots();
+});
+
+
+// FRONTEND DEMO STORAGE - saves data in this browser
+var MEDICARE_FRONTEND_STORAGE_KEY = 'medicare_pro_demo_data_v1';
+
+function saveDemoData() {
+  try {
+    localStorage.setItem(MEDICARE_FRONTEND_STORAGE_KEY, JSON.stringify({
+      patients: patients,
+      appointments: appointments,
+      consultations: consultations,
+      invoices: invoices,
+      doctors: doctors
+    }));
+  } catch (e) {
+    console.warn('Could not save demo data', e);
+  }
+}
+
+function loadDemoData() {
+  try {
+    var raw = localStorage.getItem(MEDICARE_FRONTEND_STORAGE_KEY);
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    patients = data.patients || patients;
+    appointments = data.appointments || appointments;
+    consultations = data.consultations || consultations;
+    invoices = data.invoices || invoices;
+    doctors = data.doctors || doctors;
+  } catch (e) {
+    console.warn('Could not load demo data', e);
+  }
+}
+
+function clearDemoData() {
+  if (!confirm('Clear saved demo data?')) return;
+  localStorage.removeItem(MEDICARE_FRONTEND_STORAGE_KEY);
+  location.reload();
+}
+
+setInterval(saveDemoData, 1500);
+window.addEventListener('beforeunload', saveDemoData);
+
+
+/* C BACKEND SYNC */
+var backendLoaded = false;
+
+function getClinicState() {
+  return { patients, appointments, consultations, invoices, doctors };
+}
+
+function setClinicState(data) {
+  if (!data) return;
+
+  patients = data.patients || patients || [];
+  appointments = data.appointments || appointments || [];
+  consultations = data.consultations || consultations || [];
+  invoices = data.invoices || invoices || [];
+
+  // Do not wipe seeded doctors if backend file is empty or old.
+  if (data.doctors && data.doctors.length > 0) {
+    doctors = data.doctors;
+  }
+
+  if (typeof ensureDefaultDoctors === 'function') ensureDefaultDoctors();
+  if (typeof populateDoctorSelects === 'function') populateDoctorSelects();
+  if (typeof populateLoginDoctors === 'function') populateLoginDoctors();
+  if (typeof populateAvailableSlots === 'function') populateAvailableSlots();
+  if (typeof renderPatients === 'function') renderPatients();
+  if (typeof renderAppointments === 'function') renderAppointments();
+  if (typeof renderConsultations === 'function') renderConsultations();
+  if (typeof renderDoctors === 'function') renderDoctors();
+  if (typeof renderInvoices === 'function') renderInvoices();
+  if (typeof updateDashboard === 'function') updateDashboard();
+}
+
+function loadFromBackend() {
+  fetch('/api/data')
+    .then(r => r.json())
+    .then(data => {
+      setClinicState(data);
+      backendLoaded = true;
+    })
+    .catch(() => console.warn('Backend not reachable'));
+}
+
+function saveToBackend() {
+  if (!backendLoaded) return;
+  fetch('/api/data', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(getClinicState())
+  });
+}
+
+window.addEventListener('load', loadFromBackend);
+setInterval(saveToBackend, 2000);
+
+
+window.addEventListener('load', function() {
+  if (typeof populateDoctorSelects === 'function') populateDoctorSelects();
+  if (typeof populateLoginDoctors === 'function') populateLoginDoctors();
+  if (typeof toggleLoginFields === 'function') toggleLoginFields();
+  if (typeof populateAvailableSlots === 'function') populateAvailableSlots();
+});
+</script>
+
+<script>
+/* ────────────────────────────────
+   FINAL ROLE / LOGIN / NAV FIX
+   This overrides earlier buggy handlers safely.
+──────────────────────────────── */
+
+function getDefaultDoctorsFinal() {
+  return [
+    { name: 'Dr. Rufina J', spec: 'Paediatrics', quals: 'MBBS, MD', exp: 10, phone: '9810001111', status: 'Available' },
+    { name: 'Dr. Priya Sharma', spec: 'General Medicine', quals: 'MBBS, MS', exp: 8, phone: '9810002222', status: 'In Consultation' },
+    { name: 'Dr. Arun Mehta', spec: 'Orthopaedics', quals: 'MBBS, DNB', exp: 12, phone: '9810003333', status: 'Available' },
+    { name: 'Dr. Sunita Verma', spec: 'ENT', quals: 'MBBS, DLO', exp: 7, phone: '9810004444', status: 'Available' },
+    { name: 'Dr. Vikram Patel', spec: 'Cardiology', quals: 'MBBS, DM', exp: 15, phone: '9810005555', status: 'On Leave' },
+    { name: 'Dr. Meena Iyer', spec: 'Dermatology', quals: 'MBBS, MD', exp: 9, phone: '9810006666', status: 'Available' }
+  ];
+}
+
+function ensureDefaultDoctorsFinal() {
+  if (!Array.isArray(window.doctors) || window.doctors.length === 0) {
+    window.doctors = getDefaultDoctorsFinal();
+  }
+}
+
+function populateLoginDoctors() {
+  ensureDefaultDoctorsFinal();
+
+  var sel = document.getElementById('login-doctor');
+  if (!sel) return;
+
+  var oldValue = sel.value;
+  sel.innerHTML = '';
+  doctors.forEach(function(d) {
+    var opt = document.createElement('option');
+    opt.value = d.name;
+    opt.textContent = d.name + ' (' + d.spec + ')';
+    sel.appendChild(opt);
+  });
+
+  if (oldValue) sel.value = oldValue;
+}
+
+function populateDoctorSelects() {
+  ensureDefaultDoctorsFinal();
+
+  var ids = ['pdoctor','adoctor','cdoctor','idoctor','e-pdoctor'];
+  ids.forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+
+    var oldValue = sel.value;
+    sel.innerHTML = '';
+
+    doctors.forEach(function(d) {
+      var opt = document.createElement('option');
+      opt.value = d.name;
+      opt.textContent = d.name + ' (' + d.spec + ')';
+      sel.appendChild(opt);
+    });
+
+    if (oldValue) sel.value = oldValue;
+  });
+}
+
+function toggleLoginFields() {
+  var roleEl = document.getElementById('login-role');
+  var role = roleEl ? roleEl.value.toLowerCase() : '';
+
+  var doctorWrap = document.getElementById('login-doctor-wrap');
+  var nameWrap = document.getElementById('login-name-wrap');
+  var nameInput = document.getElementById('login-name');
+  var nameLabel = document.getElementById('login-name-label');
+  var patientModeWrap = document.getElementById('patient-mode-wrap');
+  var patientMode = document.getElementById('patient-mode') ? document.getElementById('patient-mode').value : 'existing';
+  var passInput = document.getElementById('login-pass');
+  var passWrap = passInput ? passInput.closest('label') : null;
+  var submitBtn = document.getElementById('login-submit-btn') || document.querySelector('#login-form button[type="submit"]');
+
+  if (doctorWrap) doctorWrap.style.display = 'none';
+  if (nameWrap) nameWrap.style.display = 'block';
+  if (patientModeWrap) patientModeWrap.style.display = 'none';
+  if (passWrap) passWrap.style.display = 'block';
+  if (nameInput) nameInput.required = true;
+  if (passInput) passInput.required = true;
+  if (submitBtn) submitBtn.textContent = 'Login';
+
+  if (role === 'doctor') {
+    populateLoginDoctors();
+    if (doctorWrap) doctorWrap.style.display = 'flex';
+    if (nameWrap) nameWrap.style.display = 'none';
+    if (nameInput) nameInput.required = false;
+  } else if (role === 'patient') {
+    if (patientModeWrap) patientModeWrap.style.display = 'block';
+    if (nameLabel) nameLabel.textContent = 'Patient ID / Phone';
+    if (nameInput) nameInput.placeholder = 'P001 or 9876543210';
+
+    if (patientMode === 'new') {
+      if (nameWrap) nameWrap.style.display = 'none';
+      if (passWrap) passWrap.style.display = 'none';
+      if (nameInput) nameInput.required = false;
+      if (passInput) passInput.required = false;
+      if (submitBtn) submitBtn.textContent = 'Register';
+    }
+  } else {
+    if (nameLabel) nameLabel.textContent = 'Staff ID';
+    if (nameInput) nameInput.placeholder = 'REC001';
+  }
+}
+
+function toggleDoctorLogin() {
+  toggleLoginFields();
+}
+
+function togglePatientMode() {
+  toggleLoginFields();
+}
+
+function allowedPagesForRole(role) {
+  if (role === 'receptionist') return ['dashboard', 'patients', 'appointments', 'doctors', 'invoice'];
+  if (role === 'doctor') return ['dashboard', 'patients', 'appointments', 'consultation', 'doctors', 'invoice'];
+  if (role === 'patient') return ['appointments', 'doctors'];
+  return ['dashboard'];
+}
+
+function applyRoleAccess() {
+  var role = currentUser ? currentUser.role : '';
+  var allowed = allowedPagesForRole(role);
+  var navButtons = document.querySelectorAll('nav button');
+
+  navButtons.forEach(function(btn) {
+    var onclick = btn.getAttribute('onclick') || '';
+    var match = onclick.match(/showPage\('([^']+)'/);
+    var pageName = match ? match[1] : '';
+    btn.style.display = allowed.indexOf(pageName) >= 0 ? '' : 'none';
+  });
+
+  var searchPanel = document.getElementById('patient-search-panel');
+  var registerPanel = document.getElementById('patient-register-panel');
+  var pageHeader = document.querySelector('#patients .page-header p');
+
+  if (role === 'doctor') {
+    if (searchPanel) searchPanel.style.display = 'none';
+    if (registerPanel) registerPanel.style.display = 'none';
+    if (pageHeader) pageHeader.textContent = 'Your assigned patients and upcoming appointments';
+  } else if (role === 'patient') {
+    if (searchPanel) searchPanel.style.display = 'none';
+    if (registerPanel) registerPanel.style.display = 'none';
+    if (pageHeader) pageHeader.textContent = 'Patient records are not available in patient login. Please use Appointments to book or view your visits.';
+  } else {
+    if (searchPanel) searchPanel.style.display = 'block';
+    if (registerPanel) registerPanel.style.display = 'block';
+    if (pageHeader) pageHeader.textContent = 'Retrieve existing patients or register first-time patients';
+  }
+}
+
+function showPage(pageId, btn) {
+  if (currentUser) {
+    var allowed = allowedPagesForRole(currentUser.role);
+    if (allowed.indexOf(pageId) < 0) {
+      showToast('This page is not available for your role.', 'error');
+      return;
+    }
+  }
+
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  var page = document.getElementById(pageId);
+  if (page) page.classList.add('active');
+
+  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+}
+
+function generatePatientId() {
+  var maxNum = 0;
+  patients.forEach(function(p) {
+    var n = parseInt(String(p.id || '').replace(/[^0-9]/g, ''), 10);
+    if (!isNaN(n) && n > maxNum) maxNum = n;
+  });
+  return 'P' + String(maxNum + 1).padStart(3, '0');
+}
+
+function prepareNewPatientRegistration() {
+  var pid = document.getElementById('pid');
+  if (pid && !pid.value) pid.value = generatePatientId();
+}
+
+function loginUser(e) {
+  e.preventDefault();
+
+  ensureDefaultDoctorsFinal();
+  populateLoginDoctors();
+  populateDoctorSelects();
+
+  var role = document.getElementById('login-role').value.toLowerCase();
+  var patientMode = document.getElementById('patient-mode') ? document.getElementById('patient-mode').value : 'existing';
+
+  if (role === 'patient' && patientMode === 'new') {
+    currentUser = { name: 'New Patient', role: 'patient' };
+    currentDoctor = '';
+
+    document.body.classList.remove('logged-out');
+    document.body.classList.add('logged-in');
+
+    var userElNew = document.getElementById('logged-user');
+    var roleElNew = document.getElementById('logged-role');
+    if (userElNew) userElNew.textContent = 'New Patient';
+    if (roleElNew) roleElNew.textContent = 'Patient';
+
+    applyRoleAccess();
+    showPage('appointments', document.querySelector('nav button[onclick*="appointments"]'));
+    preparePatientAppointmentBooking();
+    showToast('Please book your appointment. Your Patient ID will be generated after booking.');
+    return;
+  }
+
+  var pass = document.getElementById('login-pass').value;
+  var name = role === 'doctor'
+    ? document.getElementById('login-doctor').value
+    : document.getElementById('login-name').value.trim();
+
+  if (pass !== 'demo123') {
+    showToast('Invalid password. Use demo123 for this project demo.', 'error');
+    return;
+  }
+
+  if (role === 'doctor' && !name) {
+    showToast('Please select a doctor.', 'error');
+    return;
+  }
+
+  if (role !== 'doctor' && !name) {
+    showToast(role === 'patient' ? 'Please enter Patient ID / Phone.' : 'Please enter Staff ID.', 'error');
+    return;
+  }
+
+  if (role === 'patient') {
+    var foundPatient = patients.find(function(p) {
+      return String(p.id || '').toLowerCase() === name.toLowerCase() ||
+             String(p.contact || '') === name;
+    });
+
+    if (!foundPatient) {
+      showToast('Patient not found. Choose New Patient to register.', 'error');
+      return;
+    }
+
+    name = foundPatient.name + ' (' + foundPatient.id + ')';
+  }
+
+  currentUser = { name: name, role: role };
+  currentDoctor = role === 'doctor' ? name : '';
+
+  document.body.classList.remove('logged-out');
+  document.body.classList.add('logged-in');
+
+  var userEl = document.getElementById('logged-user');
+  var roleEl = document.getElementById('logged-role');
+  if (userEl) userEl.textContent = currentUser.name;
+  if (roleEl) roleEl.textContent = role === 'doctor' ? 'Doctor' : roleLabels[role];
+
+  applyRoleAccess();
+
+  var firstAllowed = allowedPagesForRole(role)[0];
+  showPage(firstAllowed, document.querySelector('nav button[onclick*="' + firstAllowed + '"]'));
+
+  if (typeof renderPatients === 'function') renderPatients();
+  if (typeof renderAppointments === 'function') renderAppointments();
+  if (typeof renderConsultations === 'function') renderConsultations();
+  if (typeof renderDoctors === 'function') renderDoctors();
+  if (typeof updateDashboard === 'function') updateDashboard();
+
+  showToast('Logged in as ' + currentUser.name);
+}
+
+/* Wrap addPatient so a newly registered patient gets an appointment entry too. */
+(function() {
+  var originalAddPatient = window.addPatient;
+
+  window.addPatient = function(e) {
+    if (e) e.preventDefault();
+
+    var wasNewPatient = currentUser && currentUser.role === 'patient' && currentUser.name === 'New Patient';
+
+    var pidEl = document.getElementById('pid');
+    if (pidEl && !pidEl.value) pidEl.value = generatePatientId();
+
+    var beforeCount = patients.length;
+
+    if (typeof originalAddPatient === 'function') {
+      originalAddPatient.call(this, e || { preventDefault: function() {}, target: document.querySelector('#patients form') });
+    }
+
+    var added = patients.length > beforeCount ? patients[patients.length - 1] : null;
+
+    if (wasNewPatient && added) {
+      currentUser.name = added.name + ' (' + added.id + ')';
+
+      var userEl = document.getElementById('logged-user');
+      if (userEl) userEl.textContent = currentUser.name;
+
+      // Add the patient to appointments/queue so receptionist and doctor can see them.
+      var existingAppt = appointments.some(function(a) {
+        return a.name === added.name && a.doctor === added.doctor;
+      });
+
+      if (!existingAppt) {
+        appointments.push({
+          name: added.name,
+          doctor: added.doctor,
+          date: new Date().toISOString().slice(0, 10),
+          time: '09:00',
+          reason: added.diag || 'Online registration',
+          status: 'Scheduled'
+        });
+      }
+
+      var idBox = document.getElementById('generated-patient-id-box');
+      if (idBox) {
+        idBox.style.display = 'block';
+        idBox.textContent = 'Registration successful. Your Patient ID is: ' + added.id;
+      }
+
+      if (typeof renderAppointments === 'function') renderAppointments();
+      if (typeof updateDashboard === 'function') updateDashboard();
+      if (typeof saveToBackend === 'function') saveToBackend();
+
+      applyRoleAccess();
+      showToast('Registration complete. Your Patient ID is: ' + added.id);
+    }
+  };
+})();
+
+window.addEventListener('load', function() {
+  ensureDefaultDoctorsFinal();
+  populateDoctorSelects();
+  populateLoginDoctors();
+  toggleLoginFields();
+
+  if (typeof renderDoctors === 'function') renderDoctors();
+});
+</script>
+
+
+
+<script>
+/* ────────────────────────────────
+   FINAL UNIFIED INTAKE FLOW
+   One form: New patient OR Follow-up patient + appointment.
+──────────────────────────────── */
+
+function toggleIntakeType() {
+  var type = document.getElementById('intake-type') ? document.getElementById('intake-type').value : 'new';
+  var newFields = document.getElementById('new-patient-fields');
+  var lookupWrap = document.getElementById('existing-patient-lookup-wrap');
+  var pid = document.getElementById('pid');
+
+  if (type === 'new') {
+    if (newFields) newFields.style.display = 'block';
+    if (lookupWrap) lookupWrap.style.display = 'none';
+    if (pid) pid.value = generatePatientId();
+  } else {
+    if (newFields) newFields.style.display = 'none';
+    if (lookupWrap) lookupWrap.style.display = 'block';
+    if (pid) pid.value = '';
+  }
+}
+
+function findExistingPatientByIdOrPhone(value) {
+  var q = String(value || '').trim().toLowerCase();
+  if (!q) return null;
+
+  return patients.find(function(p) {
+    return String(p.id || '').toLowerCase() === q ||
+           String(p.contact || '').toLowerCase() === q;
+  }) || null;
+}
+
+function populatePatientSlots() {
+  var doctor = document.getElementById('pdoctor') ? document.getElementById('pdoctor').value : '';
+  var date = document.getElementById('pdate') ? document.getElementById('pdate').value : '';
+  var sel = document.getElementById('pslot');
+  if (!sel) return;
+
+  var slots = (typeof clinicSlots !== 'undefined' && clinicSlots.length)
+    ? clinicSlots
+    : ['09:00','09:30','10:00','10:30','11:00','11:30','16:00','16:30','17:00','17:30'];
+
+  sel.innerHTML = '<option value="">Select slot</option>';
+
+  slots.forEach(function(slot) {
+    var opt = document.createElement('option');
+    opt.value = slot;
+    opt.textContent = typeof formatSlot === 'function' ? formatSlot(slot) : slot;
+
+    var booked = appointments.some(function(a) {
+      return a.doctor === doctor &&
+             a.date === date &&
+             a.time === slot &&
+             a.status !== 'Cancelled';
+    });
+
+    if (doctor && date && booked) {
+      opt.disabled = true;
+      opt.textContent += ' - Booked';
+    }
+
+    sel.appendChild(opt);
+  });
+}
+
+function submitPatientIntake(e) {
+  e.preventDefault();
+
+  var type = document.getElementById('intake-type').value;
+  var doctor = document.getElementById('pdoctor').value;
+  var date = document.getElementById('pdate').value;
+  var slot = document.getElementById('pslot').value;
+  var reason = document.getElementById('pdiag').value.trim();
+
+  if (!date) {
+    showToast('Please select appointment date.', 'error');
+    return;
+  }
+
+  if (!slot) {
+    showToast('Please select available appointment slot.', 'error');
+    return;
+  }
+
+  var duplicateSlot = appointments.some(function(a) {
+    return a.doctor === doctor &&
+           a.date === date &&
+           a.time === slot &&
+           a.status !== 'Cancelled';
+  });
+
+  if (duplicateSlot) {
+    showToast('This slot is already booked. Please choose another slot.', 'error');
+    populatePatientSlots();
+    return;
+  }
+
+  var patient = null;
+  var isNew = type === 'new';
+
+  if (isNew) {
+    var contact = document.getElementById('pcontact').value.trim();
+
+    if (!document.getElementById('pname').value.trim()) {
+      showToast('Please enter patient name.', 'error');
+      return;
+    }
+
+    if (!contact) {
+      showToast('Please enter phone number.', 'error');
+      return;
+    }
+
+    var existingByPhone = patients.find(function(p) {
+      return String(p.contact || '') === contact;
+    });
+
+    if (existingByPhone) {
+      showToast('This phone number already exists. Choose Follow Up / Existing Patient.', 'error');
+      return;
+    }
+
+    patient = {
+      id: generatePatientId(),
+      name: document.getElementById('pname').value.trim(),
+      age: document.getElementById('page').value,
+      gender: document.getElementById('pgender').value,
+      parent: document.getElementById('pparent').value.trim(),
+      contact: contact,
+      doctor: doctor,
+      visit: 'First Visit',
+      diag: reason,
+      status: 'Active'
+    };
+
+    patients.push(patient);
+  } else {
+    patient = findExistingPatientByIdOrPhone(document.getElementById('existing-patient-lookup').value);
+
+    if (!patient) {
+      showToast('Patient does not exist. Choose First Time / New Patient.', 'error');
+      return;
+    }
+
+    patient.doctor = doctor;
+    patient.visit = 'Follow Up';
+    patient.diag = reason || patient.diag || '';
+    patient.status = 'Follow Up';
+  }
+
+  var appointment = {
+    name: patient.name,
+    patientId: patient.id,
+    doctor: doctor,
+    date: date,
+    time: slot,
+    reason: reason,
+    status: 'Scheduled',
+    visit: isNew ? 'First Visit' : 'Follow Up'
+  };
+
+  appointments.push(appointment);
+
+  renderPatients();
+  renderAppointments();
+  updateDashboard();
+
+  if (typeof saveToBackend === 'function') saveToBackend();
+
+  var msg = isNew
+    ? 'Registration successful. Patient ID: ' + patient.id + '. Appointment created for ' + date + ' at ' + (typeof formatSlot === 'function' ? formatSlot(slot) : slot) + '.'
+    : 'Follow-up appointment created for ' + patient.name + ' (' + patient.id + ').';
+
+  var idBox = document.getElementById('generated-patient-id-box');
+  if (idBox) {
+    idBox.style.display = 'block';
+    idBox.textContent = msg;
+  }
+
+  showToast(msg);
+
+  e.target.reset();
+  toggleIntakeType();
+  populatePatientSlots();
+}
+
+window.addEventListener('load', function() {
+  toggleIntakeType();
+  populatePatientSlots();
+});
+</script>
+
+
+<script>
+/* ────────────────────────────────
+   SIMPLE REALISTIC CLINIC WORKFLOW
+   Keeps DSA same, improves role/status logic.
+   Statuses: Scheduled -> In Consultation -> Completed -> Invoice
+──────────────────────────────── */
+
+function todayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isDoctorView() {
+  return currentUser && currentUser.role === 'doctor' && currentDoctor;
+}
+
+function doctorFilter(list) {
+  if (!isDoctorView()) return list;
+  return list.filter(function(item) {
+    return item.doctor === currentDoctor ||
+           String(item.doctor || '').split('(')[0].trim() === currentDoctor;
+  });
+}
+
+function patientViewFilter(list) {
+  if (!currentUser || currentUser.role !== 'patient') return list;
+  var idMatch = String(currentUser.name || '').match(/\((P\d+)\)/);
+  var patientId = idMatch ? idMatch[1] : '';
+  return list.filter(function(item) {
+    return item.patientId === patientId ||
+           item.id === patientId ||
+           String(currentUser.name || '').toLowerCase().includes(String(item.name || '').toLowerCase());
+  });
+}
+
+function getVisibleAppointments() {
+  var data = appointments || [];
+
+  if (currentUser && currentUser.role === 'doctor') {
+    data = data.filter(function(a) {
+      return (a.doctor === currentDoctor || String(a.doctor || '').split('(')[0].trim() === currentDoctor) &&
+             a.date === todayString() &&
+             a.status !== 'Cancelled' &&
+             a.status !== 'No Show';
+    });
+  }
+
+  if (currentUser && currentUser.role === 'patient') {
+    data = patientViewFilter(data);
+  }
+
+  return data;
+}
+
+function getAppointmentBadge(status) {
+  var cls = 'badge-orange';
+  if (status === 'Completed') cls = 'badge-green';
+  if (status === 'Cancelled' || status === 'No Show') cls = 'badge-red';
+  if (status === 'In Consultation') cls = 'badge-blue';
+  return '<span class="badge ' + cls + '">' + (status || 'Scheduled') + '</span>';
+}
+
+/* Render appointments with role-specific actions */
+function renderAppointments() {
+  var tbody = document.getElementById('appt-table');
+  if (!tbody) return;
+
+  var data = getVisibleAppointments();
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No appointments found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+
+  data.forEach(function(a, visibleIndex) {
+    var realIndex = appointments.indexOf(a);
+    var actions = '';
+
+    if (currentUser && currentUser.role === 'doctor') {
+      if (a.status === 'Scheduled') {
+        actions =
+          '<button class="btn btn-primary btn-sm" onclick="startConsultationFromAppointment(' + realIndex + ')">Start</button>';
+      } else if (a.status === 'In Consultation') {
+        actions =
+          '<button class="btn btn-success btn-sm" onclick="completeAppointment(' + realIndex + ')">Complete</button>';
+      } else {
+        actions = '—';
+      }
+    } else if (currentUser && currentUser.role === 'receptionist') {
+      actions =
+        '<button class="btn btn-outline btn-sm" onclick="editAppointment(' + realIndex + ')">Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="cancelAppointment(' + realIndex + ')">Cancel</button>' +
+        '<button class="btn btn-outline btn-sm" onclick="markNoShow(' + realIndex + ')">No Show</button>';
+    } else {
+      actions = a.status === 'Scheduled'
+        ? '<button class="btn btn-danger btn-sm" onclick="cancelAppointment(' + realIndex + ')">Cancel</button>'
+        : '—';
+    }
+
+    tbody.innerHTML +=
+      '<tr>' +
+      '<td>' + (visibleIndex + 1) + '</td>' +
+      '<td>' + (a.name || '—') + '</td>' +
+      '<td>' + String(a.doctor || '').split('(')[0].trim() + '</td>' +
+      '<td>' + (a.date || '—') + '</td>' +
+      '<td>' + (typeof formatSlot === 'function' ? formatSlot(a.time || '') : (a.time || '—')) + '</td>' +
+      '<td>' + (a.reason || '—') + '</td>' +
+      '<td>' + getAppointmentBadge(a.status || 'Scheduled') + '</td>' +
+      '<td style="display:flex;gap:6px;flex-wrap:wrap">' + actions + '</td>' +
+      '</tr>';
+  });
+}
+
+function startConsultationFromAppointment(i) {
+  if (!appointments[i]) return;
+  appointments[i].status = 'In Consultation';
+
+  var appt = appointments[i];
+  var patient = patients.find(function(p) {
+    return p.id === appt.patientId || p.name === appt.name;
+  });
+
+  showPage('consultation', document.querySelector('nav button[onclick*="consultation"]'));
+
+  if (patient) {
+    var cname = document.getElementById('cname');
+    var cage = document.getElementById('cage');
+    var cgender = document.getElementById('cgender');
+    var cdoctor = document.getElementById('cdoctor');
+    var ccomp = document.getElementById('ccomp');
+    var cvisit = document.getElementById('cvisit');
+
+    if (cname) cname.value = patient.name;
+    if (cage) cage.value = patient.age || '';
+    if (cgender) cgender.value = patient.gender || 'Male';
+    if (cdoctor) cdoctor.value = appt.doctor;
+    if (ccomp) ccomp.value = appt.reason || patient.diag || '';
+    if (cvisit) cvisit.value = appt.visit || patient.visit || 'First Visit';
+  }
+
+  renderAppointments();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Consultation started for ' + appt.name);
+}
+
+function completeAppointment(i) {
+  if (!appointments[i]) return;
+  appointments[i].status = 'Completed';
+  renderAppointments();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Appointment completed. Invoice can now be generated.');
+}
+
+function cancelAppointment(i) {
+  if (!appointments[i]) return;
+  if (!confirm('Cancel appointment for ' + appointments[i].name + '?')) return;
+  appointments[i].status = 'Cancelled';
+  renderAppointments();
+  updateDashboard();
+  if (typeof populatePatientSlots === 'function') populatePatientSlots();
+  if (typeof populateAvailableSlots === 'function') populateAvailableSlots();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Appointment cancelled.');
+}
+
+function markNoShow(i) {
+  if (!appointments[i]) return;
+  if (!confirm('Mark ' + appointments[i].name + ' as No Show?')) return;
+  appointments[i].status = 'No Show';
+  renderAppointments();
+  updateDashboard();
+  if (typeof populatePatientSlots === 'function') populatePatientSlots();
+  if (typeof populateAvailableSlots === 'function') populateAvailableSlots();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Marked as No Show.');
+}
+
+/* Duplicate slot protection stays simple: doctor + date + slot */
+function isSlotBooked(doctor, date, slot) {
+  return appointments.some(function(a, idx) {
+    return idx !== (typeof editAppointmentIndex !== 'undefined' ? editAppointmentIndex : -1) &&
+           a.doctor === doctor &&
+           a.date === date &&
+           a.time === slot &&
+           a.status !== 'Cancelled' &&
+           a.status !== 'No Show';
+  });
+}
+
+/* Invoice only after completed consultation/appointment */
+function canInvoicePatient(patientName) {
+  return appointments.some(function(a) {
+    return a.name === patientName && a.status === 'Completed';
+  }) || consultations.some(function(c) {
+    return c.name === patientName || c.patient === patientName;
+  });
+}
+
+var originalAddInvoiceRealistic = window.addInvoice;
+window.addInvoice = function(e) {
+  if (e) e.preventDefault();
+
+  var patientName = document.getElementById('iname') ? document.getElementById('iname').value.trim() : '';
+
+  if (!canInvoicePatient(patientName)) {
+    showToast('Invoice can be generated only after consultation is completed.', 'error');
+    return;
+  }
+
+  if (typeof originalAddInvoiceRealistic === 'function') {
+    originalAddInvoiceRealistic.call(this, e || { preventDefault: function() {}, target: document.querySelector('#invoice form') });
+  }
+
+  if (typeof saveToBackend === 'function') saveToBackend();
+};
+
+/* Doctor should see only own patients */
+var originalRenderPatientsRealistic = window.renderPatients;
+window.renderPatients = function(list) {
+  var data = list || patients;
+
+  if (currentUser && currentUser.role === 'doctor') {
+    data = data.filter(function(p) {
+      return p.doctor === currentDoctor || String(p.doctor || '').split('(')[0].trim() === currentDoctor;
+    });
+  }
+
+  if (currentUser && currentUser.role === 'patient') {
+    data = patientViewFilter(data);
+  }
+
+  if (typeof originalRenderPatientsRealistic === 'function') {
+    originalRenderPatientsRealistic(data);
+  }
+};
+
+window.addEventListener('load', function() {
+  if (typeof renderAppointments === 'function') renderAppointments();
+});
+</script>
+
+
+<script>
+/* ────────────────────────────────
+   FINAL GLITCH FIXES
+   - Patient online flow has no patient type choice
+   - Patient booked appointment appears in appointments immediately
+   - Patient can see previous checkup records read-only
+   - Doctor dashboard removed
+──────────────────────────────── */
+
+function getLoggedPatientId() {
+  if (!currentUser || currentUser.role !== 'patient') return '';
+  var match = String(currentUser.name || '').match(/\((P\d+)\)/);
+  return match ? match[1] : '';
+}
+
+function getLoggedPatientNameOnly() {
+  return String(currentUser && currentUser.name ? currentUser.name : '').replace(/\s*\(P\d+\)\s*/, '').trim();
+}
+
+function allowedPagesForRole(role) {
+  if (role === 'receptionist') return ['dashboard', 'patients', 'appointments', 'doctors', 'invoice'];
+  if (role === 'doctor') return ['appointments', 'patients', 'consultation'];
+  if (role === 'patient') return ['patients', 'appointments'];
+  return ['dashboard'];
+}
+
+function applyRoleAccess() {
+  var role = currentUser ? currentUser.role : '';
+  var allowed = allowedPagesForRole(role);
+  var navButtons = document.querySelectorAll('nav button');
+
+  navButtons.forEach(function(btn) {
+    var onclick = btn.getAttribute('onclick') || '';
+    var match = onclick.match(/showPage\('([^']+)'/);
+    var pageName = match ? match[1] : '';
+    btn.style.display = allowed.indexOf(pageName) >= 0 ? '' : 'none';
+  });
+
+  var searchPanel = document.getElementById('patient-search-panel');
+  var registerPanel = document.getElementById('patient-register-panel');
+  var recordsPanel = document.getElementById('patient-records-panel');
+  var pageHeader = document.querySelector('#patients .page-header p');
+  var oldAppointmentForm = document.getElementById('old-appointment-form-panel');
+
+  if (oldAppointmentForm) oldAppointmentForm.style.display = 'none';
+
+  if (role === 'doctor') {
+    if (searchPanel) searchPanel.style.display = 'none';
+    if (registerPanel) registerPanel.style.display = 'none';
+    if (recordsPanel) recordsPanel.style.display = 'none';
+    if (pageHeader) pageHeader.textContent = 'Past completed patients and consultation details for this doctor';
+  } else if (role === 'patient') {
+    if (searchPanel) searchPanel.style.display = 'none';
+    if (registerPanel) registerPanel.style.display = currentUser && currentUser.name === 'New Patient' ? 'block' : 'none';
+    if (recordsPanel) recordsPanel.style.display = currentUser && currentUser.name !== 'New Patient' ? 'block' : 'none';
+    if (pageHeader) pageHeader.textContent = currentUser && currentUser.name === 'New Patient'
+      ? 'Complete your registration and book appointment'
+      : 'Your appointments and previous checkup details';
+  } else {
+    if (searchPanel) searchPanel.style.display = 'block';
+    if (registerPanel) registerPanel.style.display = 'block';
+    if (recordsPanel) recordsPanel.style.display = 'none';
+    if (pageHeader) pageHeader.textContent = 'Create appointments for first-time patients or follow-up patients';
+  }
+}
+
+function setupPatientOnlineNewFlow() {
+  if (!(currentUser && currentUser.role === 'patient' && currentUser.name === 'New Patient')) return;
+
+  var intakeType = document.getElementById('intake-type');
+  var intakeWrap = intakeType ? intakeType.closest('label') : null;
+  var existingWrap = document.getElementById('existing-patient-lookup-wrap');
+
+  if (intakeType) intakeType.value = 'new';
+  if (intakeWrap) intakeWrap.style.display = 'none';
+  if (existingWrap) existingWrap.style.display = 'none';
+
+  if (typeof toggleIntakeType === 'function') toggleIntakeType();
+
+  var pid = document.getElementById('pid');
+  if (pid && !pid.value && typeof generatePatientId === 'function') pid.value = generatePatientId();
+}
+
+function showPage(pageId, btn) {
+  if (currentUser) {
+    var allowed = allowedPagesForRole(currentUser.role);
+    if (allowed.indexOf(pageId) < 0) {
+      showToast('This page is not available for your role.', 'error');
+      return;
+    }
+  }
+
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  var page = document.getElementById(pageId);
+  if (page) page.classList.add('active');
+
+  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+
+  if (pageId === 'patients') {
+    setupPatientOnlineNewFlow();
+    if (typeof renderPatientRecords === 'function') renderPatientRecords();
+  }
+
+  if (pageId === 'appointments' && typeof renderAppointments === 'function') renderAppointments();
+}
+
+function loginUser(e) {
+  e.preventDefault();
+
+  if (typeof ensureDefaultDoctorsFinal === 'function') ensureDefaultDoctorsFinal();
+  if (typeof populateLoginDoctors === 'function') populateLoginDoctors();
+  if (typeof populateDoctorSelects === 'function') populateDoctorSelects();
+
+  var role = document.getElementById('login-role').value.toLowerCase();
+  var patientMode = document.getElementById('patient-mode') ? document.getElementById('patient-mode').value : 'existing';
+
+  if (role === 'patient' && patientMode === 'new') {
+    currentUser = { name: 'New Patient', role: 'patient' };
+    currentDoctor = '';
+
+    document.body.classList.remove('logged-out');
+    document.body.classList.add('logged-in');
+
+    var userElNew = document.getElementById('logged-user');
+    var roleElNew = document.getElementById('logged-role');
+    if (userElNew) userElNew.textContent = 'New Patient';
+    if (roleElNew) roleElNew.textContent = 'Patient';
+
+    applyRoleAccess();
+    showPage('patients', document.querySelector('nav button[onclick*="patients"]'));
+    setupPatientOnlineNewFlow();
+    showToast('Please complete registration. Patient type is automatically First Time.');
+    return;
+  }
+
+  var pass = document.getElementById('login-pass').value;
+  var name = role === 'doctor'
+    ? document.getElementById('login-doctor').value
+    : document.getElementById('login-name').value.trim();
+
+  if (pass !== 'demo123') {
+    showToast('Invalid password. Use demo123 for this project demo.', 'error');
+    return;
+  }
+
+  if (role === 'doctor' && !name) {
+    showToast('Please select a doctor.', 'error');
+    return;
+  }
+
+  if (role !== 'doctor' && !name) {
+    showToast(role === 'patient' ? 'Please enter Patient ID / Phone.' : 'Please enter Staff ID.', 'error');
+    return;
+  }
+
+  if (role === 'patient') {
+    var foundPatient = patients.find(function(p) {
+      return String(p.id || '').toLowerCase() === name.toLowerCase() ||
+             String(p.contact || '') === name;
+    });
+
+    if (!foundPatient) {
+      showToast('Patient not found. Choose New Patient to register.', 'error');
+      return;
+    }
+
+    name = foundPatient.name + ' (' + foundPatient.id + ')';
+  }
+
+  currentUser = { name: name, role: role };
+  currentDoctor = role === 'doctor' ? name : '';
+
+  document.body.classList.remove('logged-out');
+  document.body.classList.add('logged-in');
+
+  var userEl = document.getElementById('logged-user');
+  var roleEl = document.getElementById('logged-role');
+  if (userEl) userEl.textContent = currentUser.name;
+  if (roleEl) roleEl.textContent = role === 'doctor' ? 'Doctor' : roleLabels[role];
+
+  applyRoleAccess();
+
+  var firstAllowed = allowedPagesForRole(role)[0];
+  showPage(firstAllowed, document.querySelector('nav button[onclick*="' + firstAllowed + '"]'));
+
+  if (typeof renderPatients === 'function') renderPatients();
+  if (typeof renderAppointments === 'function') renderAppointments();
+  if (typeof renderConsultations === 'function') renderConsultations();
+  if (typeof renderDoctors === 'function') renderDoctors();
+  if (typeof updateDashboard === 'function') updateDashboard();
+  if (typeof renderPatientRecords === 'function') renderPatientRecords();
+
+  showToast('Logged in as ' + currentUser.name);
+}
+
+function getVisibleAppointments() {
+  var data = appointments || [];
+
+  if (currentUser && currentUser.role === 'doctor') {
+    data = data.filter(function(a) {
+      return (a.doctor === currentDoctor || String(a.doctor || '').split('(')[0].trim() === currentDoctor) &&
+             a.date === todayString() &&
+             a.status !== 'Cancelled' &&
+             a.status !== 'No Show';
+    });
+  }
+
+  if (currentUser && currentUser.role === 'patient') {
+    var patientId = getLoggedPatientId();
+    var patientName = getLoggedPatientNameOnly().toLowerCase();
+
+    data = data.filter(function(a) {
+      return String(a.patientId || '') === patientId ||
+             String(a.name || '').toLowerCase() === patientName;
+    });
+  }
+
+  return data;
+}
+
+/* Override intake submit so patient online booking immediately appears in appointments */
+function submitPatientIntake(e) {
+  e.preventDefault();
+
+  var typeEl = document.getElementById('intake-type');
+  var type = currentUser && currentUser.role === 'patient' && currentUser.name === 'New Patient'
+    ? 'new'
+    : (typeEl ? typeEl.value : 'new');
+
+  var doctor = document.getElementById('pdoctor').value;
+  var date = document.getElementById('pdate').value;
+  var slot = document.getElementById('pslot').value;
+  var reason = document.getElementById('pdiag').value.trim();
+
+  if (!date) {
+    showToast('Please select appointment date.', 'error');
+    return;
+  }
+
+  if (!slot) {
+    showToast('Please select available appointment slot.', 'error');
+    return;
+  }
+
+  var duplicateSlot = appointments.some(function(a) {
+    return a.doctor === doctor &&
+           a.date === date &&
+           a.time === slot &&
+           a.status !== 'Cancelled' &&
+           a.status !== 'No Show';
+  });
+
+  if (duplicateSlot) {
+    showToast('This slot is already booked. Please choose another slot.', 'error');
+    if (typeof populatePatientSlots === 'function') populatePatientSlots();
+    return;
+  }
+
+  var patient = null;
+  var isNew = type === 'new';
+
+  if (isNew) {
+    var contact = document.getElementById('pcontact').value.trim();
+
+    if (!document.getElementById('pname').value.trim()) {
+      showToast('Please enter patient name.', 'error');
+      return;
+    }
+
+    if (!contact) {
+      showToast('Please enter phone number.', 'error');
+      return;
+    }
+
+    var existingByPhone = patients.find(function(p) {
+      return String(p.contact || '') === contact;
+    });
+
+    if (existingByPhone) {
+      showToast('This phone number already exists. Existing patient login can use phone number.', 'error');
+      return;
+    }
+
+    patient = {
+      id: generatePatientId(),
+      name: document.getElementById('pname').value.trim(),
+      age: document.getElementById('page').value,
+      gender: document.getElementById('pgender').value,
+      parent: document.getElementById('pparent').value.trim(),
+      contact: contact,
+      doctor: doctor,
+      visit: 'First Visit',
+      diag: reason,
+      status: 'Active'
+    };
+
+    patients.push(patient);
+  } else {
+    patient = findExistingPatientByIdOrPhone(document.getElementById('existing-patient-lookup').value);
+
+    if (!patient) {
+      showToast('Patient does not exist. Choose First Time / New Patient.', 'error');
+      return;
+    }
+
+    patient.doctor = doctor;
+    patient.visit = 'Follow Up';
+    patient.diag = reason || patient.diag || '';
+    patient.status = 'Follow Up';
+  }
+
+  var appointment = {
+    name: patient.name,
+    patientId: patient.id,
+    doctor: doctor,
+    date: date,
+    time: slot,
+    reason: reason,
+    status: 'Scheduled',
+    visit: isNew ? 'First Visit' : 'Follow Up'
+  };
+
+  appointments.push(appointment);
+
+  if (currentUser && currentUser.role === 'patient' && currentUser.name === 'New Patient') {
+    currentUser.name = patient.name + ' (' + patient.id + ')';
+    var userEl = document.getElementById('logged-user');
+    if (userEl) userEl.textContent = currentUser.name;
+  }
+
+  if (typeof renderPatients === 'function') renderPatients();
+  if (typeof renderAppointments === 'function') renderAppointments();
+  if (typeof updateDashboard === 'function') updateDashboard();
+  if (typeof renderPatientRecords === 'function') renderPatientRecords();
+  if (typeof saveToBackend === 'function') saveToBackend();
+
+  var msg = isNew
+    ? 'Registration successful. Patient ID: ' + patient.id + '. Appointment created.'
+    : 'Follow-up appointment created for ' + patient.name + ' (' + patient.id + ').';
+
+  var idBox = document.getElementById('generated-patient-id-box');
+  if (idBox) {
+    idBox.style.display = 'block';
+    idBox.textContent = msg;
+  }
+
+  showToast(msg);
+
+  if (currentUser && currentUser.role === 'patient') {
+    applyRoleAccess();
+    showPage('appointments', document.querySelector('nav button[onclick*="appointments"]'));
+  } else {
+    e.target.reset();
+    if (typeof toggleIntakeType === 'function') toggleIntakeType();
+    if (typeof populatePatientSlots === 'function') populatePatientSlots();
+  }
+}
+
+function renderPatientRecords() {
+  var panel = document.getElementById('patient-records-panel');
+  var tbody = document.getElementById('patient-records-table');
+  if (!panel || !tbody) return;
+
+  if (!(currentUser && currentUser.role === 'patient' && currentUser.name !== 'New Patient')) {
+    panel.style.display = 'none';
+    return;
+  }
+
+  panel.style.display = 'block';
+
+  var patientId = getLoggedPatientId();
+  var patientName = getLoggedPatientNameOnly().toLowerCase();
+
+  var records = (consultations || []).filter(function(c) {
+    return String(c.patientId || '') === patientId ||
+           String(c.name || c.patient || '').toLowerCase() === patientName;
+  });
+
+  if (records.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No previous checkup records yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+  records.slice().reverse().forEach(function(c) {
+    tbody.innerHTML +=
+      '<tr>' +
+      '<td>' + (c.date || c.followUp || '—') + '</td>' +
+      '<td>' + String(c.doctor || '').split('(')[0].trim() + '</td>' +
+      '<td>' + (c.diag || c.diagnosis || '—') + '</td>' +
+      '<td>' + (c.med || c.medication || '—') + '</td>' +
+      '<td>' + (c.notes || '—') + '</td>' +
+      '</tr>';
+  });
+}
+
+window.addEventListener('load', function() {
+  if (typeof toggleLoginFields === 'function') toggleLoginFields();
+  if (typeof renderPatientRecords === 'function') renderPatientRecords();
+});
+</script>
+
+
+<script>
+/* ────────────────────────────────
+   FINAL SMALL PATCH — role-specific appointment flow
+   Fixes:
+   - doctor dropdown keeps selected doctor during login
+   - patient login uses Appointments only, not Patient Records
+   - doctor Appointments = upcoming assigned appointments
+   - doctor Patients = only completed/past patient info
+   - status buttons save and refresh consistently
+──────────────────────────────── */
+
+function normalizeDoctorName(name) {
+  return String(name || '').split('(')[0].trim();
+}
+
+function getLoggedPatientId() {
+  var match = String(currentUser && currentUser.name || '').match(/\((P\d+)\)/);
+  return match ? match[1] : '';
+}
+
+function preparePatientAppointmentBooking() {
+  var oldPanel = document.getElementById('old-appointment-form-panel');
+  var note = document.getElementById('patient-booking-note');
+  if (oldPanel) oldPanel.style.display = currentUser && currentUser.role === 'patient' ? 'block' : 'none';
+  if (note) note.style.display = currentUser && currentUser.role === 'patient' ? 'block' : 'none';
+
+  var apptTitle = document.getElementById('appointments-panel-title');
+  if (apptTitle) {
+    if (currentUser && currentUser.role === 'doctor') apptTitle.textContent = 'Upcoming Appointments';
+    else apptTitle.textContent = 'Appointments';
+  }
+
+  var apptSub = document.querySelector('#appointments .page-header p');
+  if (apptSub) {
+    if (currentUser && currentUser.role === 'doctor') {
+      apptSub.textContent = 'Upcoming appointments assigned to this doctor';
+    } else if (currentUser && currentUser.role === 'receptionist') {
+      apptSub.textContent = 'View and update appointment status. Create new appointments from Patients.';
+    } else if (currentUser && currentUser.role === 'patient') {
+      apptSub.textContent = 'Book or view your appointments';
+    }
+  }
+
+  var nameEl = document.getElementById('aname');
+  if (nameEl && currentUser && currentUser.role === 'patient' && currentUser.name !== 'New Patient') {
+    nameEl.value = String(currentUser.name).replace(/\s*\(P\d+\)\s*$/, '');
+  }
+
+  if (typeof populateAvailableSlots === 'function') populateAvailableSlots();
+}
+
+var patchedShowPage = showPage;
+showPage = function(pageId, btn) {
+  patchedShowPage(pageId, btn);
+  if (pageId === 'appointments') preparePatientAppointmentBooking();
+};
+
+var patchedApplyRoleAccess = applyRoleAccess;
+applyRoleAccess = function() {
+  patchedApplyRoleAccess();
+  var oldPanel = document.getElementById('old-appointment-form-panel');
+  var note = document.getElementById('patient-booking-note');
+  if (oldPanel) oldPanel.style.display = currentUser && currentUser.role === 'patient' ? 'block' : 'none';
+  if (note) note.style.display = currentUser && currentUser.role === 'patient' ? 'block' : 'none';
+};
+
+function getOrCreatePatientForAppointment(name, doctor, reason) {
+  var patientId = getLoggedPatientId();
+  var patient = null;
+
+  if (patientId) {
+    patient = patients.find(function(p) { return p.id === patientId; });
+  }
+
+  if (!patient) {
+    patient = patients.find(function(p) {
+      return String(p.name || '').toLowerCase() === String(name || '').toLowerCase();
+    });
+  }
+
+  if (!patient && currentUser && currentUser.role === 'patient') {
+    patient = {
+      id: generatePatientId(),
+      name: name,
+      age: '',
+      gender: 'Male',
+      parent: '',
+      contact: '',
+      doctor: doctor,
+      visit: 'First Visit',
+      diag: reason || 'Appointment booking',
+      status: 'Active'
+    };
+    patients.push(patient);
+    currentUser.name = patient.name + ' (' + patient.id + ')';
+    var userEl = document.getElementById('logged-user');
+    if (userEl) userEl.textContent = currentUser.name;
+  }
+
+  return patient;
+}
+
+function addAppointment(e) {
+  e.preventDefault();
+
+  var name = document.getElementById('aname').value.trim();
+  var doctor = document.getElementById('adoctor').value;
+  var date = document.getElementById('adate').value;
+  var time = document.getElementById('atime').value;
+  var reason = document.getElementById('areason').value.trim();
+
+  if (!name) { showToast('Please enter patient name.', 'error'); return; }
+  if (!date) { showToast('Please select appointment date.', 'error'); return; }
+  if (!time) { showToast('Please select an available slot.', 'error'); return; }
+
+  if (isSlotBooked(doctor, date, time)) {
+    showToast('This slot is already booked. Please choose another slot.', 'error');
+    populateAvailableSlots();
+    return;
+  }
+
+  var patient = getOrCreatePatientForAppointment(name, doctor, reason);
+
+  var a = {
+    name: name,
+    patientId: patient ? patient.id : '',
+    doctor: doctor,
+    date: date,
+    time: time,
+    reason: reason,
+    status: 'Scheduled',
+    visit: patient && patient.visit ? patient.visit : 'First Visit'
+  };
+
+  if (editAppointmentIndex >= 0) {
+    appointments[editAppointmentIndex] = a;
+    editAppointmentIndex = -1;
+    var btn = document.querySelector('#appointments form button[type="submit"]');
+    if (btn) btn.textContent = 'Book Appointment';
+    showToast('Appointment updated successfully.');
+  } else {
+    appointments.push(a);
+    showToast('Appointment booked for ' + a.name + (a.patientId ? ' (' + a.patientId + ')' : '') + '.');
+  }
+
+  renderPatients();
+  renderAppointments();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  e.target.reset();
+  preparePatientAppointmentBooking();
+}
+
+function getVisibleAppointments() {
+  var data = appointments || [];
+  var today = todayString();
+
+  if (currentUser && currentUser.role === 'doctor') {
+    data = data.filter(function(a) {
+      return normalizeDoctorName(a.doctor) === normalizeDoctorName(currentDoctor) &&
+             String(a.date || '') >= today &&
+             a.status !== 'Completed' &&
+             a.status !== 'Cancelled' &&
+             a.status !== 'No Show';
+    });
+  }
+
+  if (currentUser && currentUser.role === 'patient') {
+    data = patientViewFilter(data);
+  }
+
+  return data;
+}
+
+function renderAppointments() {
+  var tbody = document.getElementById('appt-table');
+  if (!tbody) return;
+
+  var data = getVisibleAppointments();
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No appointments found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+  data.forEach(function(a, visibleIndex) {
+    var realIndex = appointments.indexOf(a);
+    var actions = '';
+
+    if (currentUser && currentUser.role === 'doctor') {
+      if (a.status === 'Scheduled') {
+        actions = '<button class="btn btn-primary btn-sm" onclick="startConsultationFromAppointment(' + realIndex + ')">Start</button>' +
+                  '<button class="btn btn-success btn-sm" onclick="completeAppointment(' + realIndex + ')">Complete</button>';
+      } else if (a.status === 'In Consultation') {
+        actions = '<button class="btn btn-success btn-sm" onclick="completeAppointment(' + realIndex + ')">Complete</button>';
+      } else {
+        actions = '—';
+      }
+    } else if (currentUser && currentUser.role === 'receptionist') {
+      actions = '<button class="btn btn-outline btn-sm" onclick="editAppointment(' + realIndex + ')">Edit</button>' +
+                '<button class="btn btn-success btn-sm" onclick="completeAppointment(' + realIndex + ')">Complete</button>' +
+                '<button class="btn btn-danger btn-sm" onclick="cancelAppointment(' + realIndex + ')">Cancel</button>' +
+                '<button class="btn btn-outline btn-sm" onclick="markNoShow(' + realIndex + ')">No Show</button>';
+    } else {
+      actions = a.status === 'Scheduled'
+        ? '<button class="btn btn-danger btn-sm" onclick="cancelAppointment(' + realIndex + ')">Cancel</button>'
+        : '—';
+    }
+
+    tbody.innerHTML += '<tr>' +
+      '<td>' + (visibleIndex + 1) + '</td>' +
+      '<td>' + (a.name || '—') + '</td>' +
+      '<td>' + normalizeDoctorName(a.doctor) + '</td>' +
+      '<td>' + (a.date || '—') + '</td>' +
+      '<td>' + (typeof formatSlot === 'function' ? formatSlot(a.time || '') : (a.time || '—')) + '</td>' +
+      '<td>' + (a.reason || '—') + '</td>' +
+      '<td>' + getAppointmentBadge(a.status || 'Scheduled') + '</td>' +
+      '<td style="display:flex;gap:6px;flex-wrap:wrap">' + actions + '</td>' +
+      '</tr>';
+  });
+}
+
+function completeAppointment(i) {
+  if (!appointments[i]) return;
+  appointments[i].status = 'Completed';
+
+  var appt = appointments[i];
+  var patient = patients.find(function(p) { return p.id === appt.patientId || p.name === appt.name; });
+  if (patient) {
+    patient.status = 'Discharged';
+    patient.doctor = appt.doctor;
+    patient.diag = appt.reason || patient.diag || '';
+  }
+
+  renderAppointments();
+  renderPatients();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Appointment marked as completed.');
+}
+
+var baseRenderPatientsForPatch = window.renderPatients;
+window.renderPatients = function(list) {
+  var data = list || patients;
+
+  if (currentUser && currentUser.role === 'doctor') {
+    data = data.filter(function(p) {
+      var assignedToDoctor = normalizeDoctorName(p.doctor) === normalizeDoctorName(currentDoctor);
+      var hasCompletedAppointment = appointments.some(function(a) {
+        return (a.patientId && a.patientId === p.id || a.name === p.name) &&
+               normalizeDoctorName(a.doctor) === normalizeDoctorName(currentDoctor) &&
+               a.status === 'Completed';
+      });
+      var hasConsultation = consultations.some(function(c) {
+        return (c.patientId && c.patientId === p.id || c.name === p.name || c.patient === p.name) &&
+               normalizeDoctorName(c.doctor) === normalizeDoctorName(currentDoctor);
+      });
+      return assignedToDoctor && (hasCompletedAppointment || hasConsultation || p.status === 'Discharged');
+    });
+  }
+
+  if (currentUser && currentUser.role === 'patient') {
+    data = patientViewFilter(data);
+  }
+
+  if (typeof baseRenderPatientsForPatch === 'function') baseRenderPatientsForPatch(data);
+};
+
+window.addEventListener('load', function() {
+  preparePatientAppointmentBooking();
+  if (typeof renderAppointments === 'function') renderAppointments();
+});
+</script>
+
+
+<script>
+/* ────────────────────────────────
+   FINAL CLINIC FLOW PATCH
+   - Uses "Missed" instead of informal "No Show"
+   - Status can be changed directly from appointment row
+   - Edit works without relying on hidden duplicate form
+   - Doctor starts consultation from an appointment
+   - Invoice/consultation carry real dates so today's dashboard is accurate
+──────────────────────────────── */
+var activeAppointmentIndex = -1;
+
+function normalizeStatusText(status) {
+  return status === 'No Show' ? 'Missed' : (status || 'Scheduled');
+}
+
+function isInactiveAppointment(status) {
+  status = normalizeStatusText(status);
+  return status === 'Cancelled' || status === 'Missed';
+}
+
+function getAppointmentBadge(status) {
+  status = normalizeStatusText(status);
+  var cls = 'badge-orange';
+  if (status === 'Completed') cls = 'badge-green';
+  if (status === 'Cancelled' || status === 'Missed') cls = 'badge-red';
+  if (status === 'In Consultation') cls = 'badge-blue';
+  return '<span class="badge ' + cls + '">' + status + '</span>';
+}
+
+function appointmentPatientMatches(a, p) {
+  return !!a && !!p && ((a.patientId && a.patientId === p.id) || String(a.name || '').toLowerCase() === String(p.name || '').toLowerCase());
+}
+
+function findPatientForAppointment(a) {
+  return patients.find(function(p) { return appointmentPatientMatches(a, p); });
+}
+
+function getVisibleAppointments() {
+  var data = (appointments || []).map(function(a) {
+    if (a.status === 'No Show') a.status = 'Missed';
+    return a;
+  });
+  var today = todayString();
+
+  if (currentUser && currentUser.role === 'doctor') {
+    data = data.filter(function(a) {
+      var status = normalizeStatusText(a.status);
+      return normalizeDoctorName(a.doctor) === normalizeDoctorName(currentDoctor) &&
+             String(a.date || '') >= today &&
+             status !== 'Completed' &&
+             status !== 'Cancelled' &&
+             status !== 'Missed';
+    });
+  }
+
+  if (currentUser && currentUser.role === 'patient') data = patientViewFilter(data);
+  return data;
+}
+
+function buildStatusSelect(i, status) {
+  status = normalizeStatusText(status);
+  var opts = ['Scheduled', 'In Consultation', 'Completed', 'Cancelled', 'Missed'];
+  return '<select onchange="updateAppointmentStatus(' + i + ', this.value)" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px">' +
+    opts.map(function(o) { return '<option value="' + o + '"' + (o === status ? ' selected' : '') + '>' + o + '</option>'; }).join('') +
+    '</select>';
+}
+
+function renderAppointments() {
+  var tbody = document.getElementById('appt-table');
+  if (!tbody) return;
+  var data = getVisibleAppointments();
+  if (!data.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No appointments found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  data.forEach(function(a, visibleIndex) {
+    var realIndex = appointments.indexOf(a);
+    var status = normalizeStatusText(a.status);
+    var actions = '';
+
+    if (currentUser && currentUser.role === 'doctor') {
+      actions = '<button class="btn btn-primary btn-sm" onclick="startConsultationFromAppointment(' + realIndex + ')">Open Consultation</button>';
+      if (status !== 'Completed') actions += '<button class="btn btn-success btn-sm" onclick="completeAppointment(' + realIndex + ')">Complete</button>';
+    } else if (currentUser && currentUser.role === 'receptionist') {
+      actions = buildStatusSelect(realIndex, status) +
+        '<button class="btn btn-outline btn-sm" onclick="editAppointment(' + realIndex + ')">Edit</button>';
+    } else {
+      actions = status === 'Scheduled' ? '<button class="btn btn-danger btn-sm" onclick="cancelAppointment(' + realIndex + ')">Cancel</button>' : '—';
+    }
+
+    tbody.innerHTML += '<tr>' +
+      '<td>' + (visibleIndex + 1) + '</td>' +
+      '<td>' + (a.name || '—') + (a.patientId ? '<br><small style="color:var(--muted)">' + a.patientId + '</small>' : '') + '</td>' +
+      '<td>' + normalizeDoctorName(a.doctor) + '</td>' +
+      '<td>' + (a.date || '—') + '</td>' +
+      '<td>' + (typeof formatSlot === 'function' ? formatSlot(a.time || '') : (a.time || '—')) + '</td>' +
+      '<td>' + (a.reason || '—') + '</td>' +
+      '<td>' + getAppointmentBadge(status) + '</td>' +
+      '<td style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + actions + '</td>' +
+      '</tr>';
+  });
+}
+
+function editAppointment(i) {
+  var a = appointments[i];
+  if (!a) return;
+  var newDate = prompt('Appointment date (YYYY-MM-DD):', a.date || todayString());
+  if (newDate === null) return;
+  var newTime = prompt('Appointment time (HH:MM, e.g. 09:30):', a.time || '09:00');
+  if (newTime === null) return;
+  var newReason = prompt('Reason / symptoms:', a.reason || '');
+  if (newReason === null) return;
+  if (!newDate || !newTime) { showToast('Date and time are required.', 'error'); return; }
+
+  var conflict = appointments.some(function(x, idx) {
+    return idx !== i && normalizeDoctorName(x.doctor) === normalizeDoctorName(a.doctor) &&
+           x.date === newDate && x.time === newTime && !isInactiveAppointment(x.status);
+  });
+  if (conflict) { showToast('That doctor already has an appointment at this slot.', 'error'); return; }
+
+  a.date = newDate;
+  a.time = newTime;
+  a.reason = newReason;
+  renderAppointments();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Appointment updated.');
+}
+
+function updateAppointmentStatus(i, status) {
+  if (!appointments[i]) return;
+  appointments[i].status = normalizeStatusText(status);
+  var p = findPatientForAppointment(appointments[i]);
+  if (p && status === 'Completed') {
+    p.status = 'Discharged';
+    p.doctor = appointments[i].doctor;
+    p.diag = appointments[i].reason || p.diag || '';
+  }
+  renderAppointments();
+  renderPatients();
+  updateDashboard();
+  if (typeof populatePatientSlots === 'function') populatePatientSlots();
+  if (typeof populateAvailableSlots === 'function') populateAvailableSlots();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Appointment status updated to ' + normalizeStatusText(status) + '.');
+}
+
+function markNoShow(i) { updateAppointmentStatus(i, 'Missed'); }
+function cancelAppointment(i) { if (appointments[i] && confirm('Cancel appointment for ' + appointments[i].name + '?')) updateAppointmentStatus(i, 'Cancelled'); }
+function completeAppointment(i) { updateAppointmentStatus(i, 'Completed'); }
+
+function startConsultationFromAppointment(i) {
+  var appt = appointments[i];
+  if (!appt) return;
+  activeAppointmentIndex = i;
+  appt.status = 'In Consultation';
+  var patient = findPatientForAppointment(appt) || { name: appt.name, age: '', gender: 'Male', doctor: appt.doctor, visit: appt.visit || 'First Visit', diag: appt.reason || '' };
+
+  showPage('consultation', document.querySelector('nav button[onclick*="consultation"]'));
+  var map = {
+    cname: patient.name || appt.name || '',
+    cage: patient.age || '',
+    cdoctor: appt.doctor || patient.doctor || '',
+    ccomp: appt.reason || patient.diag || '',
+    cvisit: appt.visit || patient.visit || 'First Visit'
+  };
+  Object.keys(map).forEach(function(id) { var el = document.getElementById(id); if (el) el.value = map[id]; });
+  var gender = document.getElementById('cgender'); if (gender) gender.value = patient.gender || 'Male';
+  renderAppointments();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Consultation opened for ' + (appt.name || patient.name) + '.');
+}
+
+var previousAddConsultationForFinalPatch = window.addConsultation;
+window.addConsultation = function(e) {
+  if (e) e.preventDefault();
+  var appt = activeAppointmentIndex >= 0 ? appointments[activeAppointmentIndex] : null;
+  var patient = appt ? findPatientForAppointment(appt) : patients.find(function(p) { return p.name === document.getElementById('cname').value.trim(); });
+  var c = {
+    name: document.getElementById('cname').value.trim(),
+    patientId: patient ? patient.id : (appt ? appt.patientId : ''),
+    appointmentIndex: activeAppointmentIndex,
+    appointmentDate: appt ? appt.date : todayString(),
+    date: appt ? appt.date : todayString(),
+    visit: document.getElementById('cvisit').value,
+    age: document.getElementById('cage').value,
+    gender: document.getElementById('cgender').value,
+    doctor: document.getElementById('cdoctor').value,
+    comp: document.getElementById('ccomp').value.trim(),
+    diag: document.getElementById('cdiag').value.trim(),
+    med: document.getElementById('cmed').value.trim(),
+    follow: document.getElementById('cfollow').value,
+    notes: document.getElementById('cnotes').value.trim()
+  };
+  consultations.push(c);
+  if (appt) appt.status = 'Completed';
+  if (patient) {
+    patient.status = 'Discharged';
+    patient.doctor = c.doctor;
+    patient.diag = c.diag;
+    patient.visit = c.visit;
+  }
+  activeAppointmentIndex = -1;
+  renderConsultations();
+  renderAppointments();
+  renderPatients();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  if (e && e.target) e.target.reset();
+  showToast('Consultation saved and appointment completed.');
+};
+
+function canInvoicePatient(patientName) {
+  var patient = patients.find(function(p) { return String(p.name || '').toLowerCase() === String(patientName || '').toLowerCase() || p.id === patientName; });
+  return appointments.some(function(a) { return ((patient && appointmentPatientMatches(a, patient)) || a.name === patientName) && normalizeStatusText(a.status) === 'Completed'; }) ||
+         consultations.some(function(c) { return (patient && c.patientId === patient.id) || c.name === patientName || c.patient === patientName; });
+}
+
+function addInvoice(e) {
+  if (e) e.preventDefault();
+  var name = document.getElementById('iname').value.trim();
+  if (!canInvoicePatient(name)) {
+    showToast('Invoice can be generated only after a completed appointment/consultation.', 'error');
+    return;
+  }
+  var fee = parseInt(document.getElementById('ifee').value, 10) || 0;
+  var med = parseInt(document.getElementById('imed').value, 10) || 0;
+  var other = parseInt(document.getElementById('iother').value, 10) || 0;
+  var patient = patients.find(function(p) { return String(p.name || '').toLowerCase() === name.toLowerCase(); });
+  var latestCompleted = appointments.slice().reverse().find(function(a) { return a.name === name && normalizeStatusText(a.status) === 'Completed'; });
+  var inv = {
+    ref: document.getElementById('iref').value.trim(),
+    name: name,
+    patientId: patient ? patient.id : (latestCompleted ? latestCompleted.patientId : ''),
+    appointmentDate: latestCompleted ? latestCompleted.date : todayString(),
+    date: todayString(),
+    doctor: document.getElementById('idoctor').value,
+    fee: fee,
+    med: med,
+    other: other,
+    total: fee + med + other,
+    paid: false
+  };
+  invoices.push(inv);
+  renderInvoices();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  if (e && e.target) e.target.reset();
+  showToast('Invoice ' + inv.ref + ' generated for ' + inv.name + '.');
+}
+
+function renderInvoices() {
+  var tbody = document.getElementById('invoice-table');
+  if (!tbody) return;
+  var header = document.querySelector('#invoice table thead tr');
+  if (header) header.innerHTML = '<th>Ref ID</th><th>Date</th><th>Patient / ID</th><th>Doctor</th><th>Consult</th><th>Medicine</th><th>Other</th><th>Total</th><th>Status</th><th>Actions</th>';
+  if (!invoices.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="10">No invoices generated yet.</td></tr>';
+    var s = document.getElementById('inv-summary'); if (s) s.textContent = '';
+    return;
+  }
+  var totalRev = invoices.reduce(function(s, i) { return s + (parseInt(i.total, 10) || 0); }, 0);
+  var unpaid = invoices.filter(function(i) { return !i.paid; }).length;
+  var summary = document.getElementById('inv-summary');
+  if (summary) summary.textContent = '₹' + totalRev.toLocaleString('en-IN') + ' total · ' + unpaid + ' unpaid';
+  tbody.innerHTML = '';
+  invoices.forEach(function(inv, i) {
+    if (!inv.date) inv.date = todayString();
+    tbody.innerHTML += '<tr>' +
+      '<td><strong>' + (inv.ref || '—') + '</strong></td>' +
+      '<td>' + (inv.date || '—') + '</td>' +
+      '<td>' + (inv.name || '—') + (inv.patientId ? '<br><small style="color:var(--muted)">' + inv.patientId + '</small>' : '') + '</td>' +
+      '<td>' + normalizeDoctorName(inv.doctor) + '</td>' +
+      '<td>&#8377;' + (inv.fee || 0) + '</td>' +
+      '<td>&#8377;' + (inv.med || 0) + '</td>' +
+      '<td>&#8377;' + (inv.other || 0) + '</td>' +
+      '<td class="inv-total">&#8377;' + ((inv.total || 0).toLocaleString ? inv.total.toLocaleString('en-IN') : inv.total) + '</td>' +
+      '<td>' + (inv.paid ? '<span class="badge badge-green">Paid</span>' : '<span class="badge badge-red">Unpaid</span>') + '</td>' +
+      '<td style="display:flex;gap:5px;flex-wrap:wrap">' +
+        (!inv.paid ? '<button class="btn btn-success btn-sm" onclick="markPaid(' + i + ')">Mark Paid</button>' : '') +
+        '<button class="btn btn-danger btn-sm" onclick="deleteInvoice(' + i + ')">&#x2715;</button>' +
+      '</td></tr>';
+  });
+}
+
+var previousUpdateDashboardForFinalPatch = window.updateDashboard;
+window.updateDashboard = function() {
+  if (typeof previousUpdateDashboardForFinalPatch === 'function') previousUpdateDashboardForFinalPatch();
+  var today = todayString();
+  var todayAppointments = appointments.filter(function(a) { return a.date === today; });
+  var todayConsultations = consultations.filter(function(c) { return (c.date || c.appointmentDate || today) === today; });
+  var todayInvoices = invoices.filter(function(i) { return (i.date || '') === today; });
+  var todayRevenue = todayInvoices.reduce(function(s, i) { return s + (parseInt(i.total, 10) || 0); }, 0);
+
+  var apptStat = document.getElementById('stat-appt-today'); if (apptStat) apptStat.textContent = todayAppointments.length + ' Today';
+  var sumAppt = document.getElementById('sum-appt'); if (sumAppt) sumAppt.textContent = todayAppointments.length;
+  var sumConsult = document.getElementById('sum-consult'); if (sumConsult) sumConsult.textContent = todayConsultations.length;
+  var sumRev = document.getElementById('sum-rev'); if (sumRev) sumRev.textContent = '₹' + todayRevenue.toLocaleString('en-IN');
+
+  var atbody = document.getElementById('dash-appt-table');
+  if (atbody) {
+    var upcoming = appointments.filter(function(a) { return String(a.date || '') >= today && !isInactiveAppointment(a.status) && normalizeStatusText(a.status) !== 'Completed'; }).slice(-4).reverse();
+    if (!upcoming.length) atbody.innerHTML = '<tr class="empty-row"><td colspan="4">No upcoming appointments.</td></tr>';
+    else {
+      atbody.innerHTML = '';
+      upcoming.forEach(function(a) {
+        atbody.innerHTML += '<tr><td>' + (a.name || '—') + '</td><td>' + normalizeDoctorName(a.doctor) + '</td><td>' + (a.date || '—') + '</td><td>' + getAppointmentBadge(a.status) + '</td></tr>';
+      });
+    }
+  }
+};
+
+var previousRenderPatientsFinalPatch = window.renderPatients;
+window.renderPatients = function(list) {
+  var data = list || patients;
+  if (currentUser && currentUser.role === 'doctor') {
+    data = data.filter(function(p) {
+      var hasCompletedAppointment = appointments.some(function(a) {
+        return appointmentPatientMatches(a, p) && normalizeDoctorName(a.doctor) === normalizeDoctorName(currentDoctor) && normalizeStatusText(a.status) === 'Completed';
+      });
+      var hasConsultation = consultations.some(function(c) {
+        return (c.patientId === p.id || c.name === p.name || c.patient === p.name) && normalizeDoctorName(c.doctor) === normalizeDoctorName(currentDoctor);
+      });
+      return hasCompletedAppointment || hasConsultation;
+    });
+  }
+  if (currentUser && currentUser.role === 'patient') data = patientViewFilter(data);
+  if (typeof previousRenderPatientsFinalPatch === 'function') previousRenderPatientsFinalPatch(data);
+};
+
+window.addEventListener('load', function() {
+  appointments.forEach(function(a) { if (a.status === 'No Show') a.status = 'Missed'; });
+  invoices.forEach(function(i) { if (!i.date) i.date = todayString(); });
+  consultations.forEach(function(c) { if (!c.date) c.date = c.appointmentDate || todayString(); });
+  renderAppointments();
+  renderInvoices();
+  updateDashboard();
+});
+
+
+/* ─────────────────────────────────────────────
+   FINAL LINKED CLINIC WORKFLOW PATCH
+   Invoice = selected completed appointment/patient, not free text.
+   Consultation = started from appointment, patient details auto-filled.
+───────────────────────────────────────────── */
+function ensureAppointmentIds() {
+  appointments.forEach(function(a, idx) {
+    if (!a.id) a.id = 'A' + String(idx + 1).padStart(3, '0');
+    if (a.status === 'No Show') a.status = 'Missed';
+  });
+}
+
+function getPatientByAppointment(appt) {
+  if (!appt) return null;
+  return patients.find(function(p) {
+    return (appt.patientId && p.id === appt.patientId) ||
+           String(p.name || '').toLowerCase() === String(appt.name || '').toLowerCase();
+  }) || null;
+}
+
+function getCompletedAppointmentsForInvoice() {
+  ensureAppointmentIds();
+  return appointments.filter(function(a) {
+    return normalizeStatusText(a.status) === 'Completed';
+  });
+}
+
+function setupLinkedInvoiceForm() {
+  var form = document.querySelector('#invoice-form-panel form');
+  if (!form || form.getAttribute('data-linked') === 'yes') return;
+  form.setAttribute('data-linked', 'yes');
+  form.innerHTML =
+    '<div class="form-row">' +
+      '<label>Completed Appointment / Patient' +
+        '<select id="iappointment" onchange="fillInvoiceFromAppointment()" required></select>' +
+      '</label>' +
+      '<label>Invoice Date' +
+        '<input type="date" id="idate" required />' +
+      '</label>' +
+      '<label>Reference ID' +
+        '<input type="text" id="iref" required placeholder="Auto-generated" />' +
+      '</label>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<label>Patient ID <input type="text" id="ipatientid" readonly style="background:#f0f4f8;color:#777" /></label>' +
+      '<label>Patient Name <input type="text" id="iname" readonly style="background:#f0f4f8;color:#777" /></label>' +
+      '<label>Doctor <input type="text" id="idoctor_text" readonly style="background:#f0f4f8;color:#777" /></label>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<label>Consultation Fee (&#8377;) <input type="number" id="ifee" required placeholder="500" min="0" /></label>' +
+      '<label>Medicine Charges (&#8377;) <input type="number" id="imed" placeholder="0" min="0" /></label>' +
+      '<label>Other Charges (&#8377;) <input type="number" id="iother" placeholder="0" min="0" /></label>' +
+    '</div>' +
+    '<div class="form-actions"><button class="btn btn-primary" type="submit">Generate Invoice</button></div>';
+}
+
+function refreshInvoiceAppointmentOptions() {
+  setupLinkedInvoiceForm();
+  var sel = document.getElementById('iappointment');
+  if (!sel) return;
+  var current = sel.value;
+  var completed = getCompletedAppointmentsForInvoice();
+  var used = {};
+  invoices.forEach(function(inv) { if (inv.appointmentId) used[inv.appointmentId] = true; });
+  sel.innerHTML = '<option value="">Select completed appointment</option>';
+  completed.forEach(function(a) {
+    var opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = (a.date || 'No date') + ' · ' + (a.patientId || '') + ' · ' + (a.name || 'Patient') + ' · ' + normalizeDoctorName(a.doctor);
+    if (used[a.id]) opt.textContent += ' · Invoice already added';
+    sel.appendChild(opt);
+  });
+  if (current) sel.value = current;
+  fillInvoiceFromAppointment();
+}
+
+function fillInvoiceFromAppointment() {
+  var sel = document.getElementById('iappointment');
+  if (!sel) return;
+  var appt = appointments.find(function(a) { return a.id === sel.value; });
+  var patient = getPatientByAppointment(appt);
+  var dateEl = document.getElementById('idate');
+  var refEl = document.getElementById('iref');
+  var pidEl = document.getElementById('ipatientid');
+  var nameEl = document.getElementById('iname');
+  var docEl = document.getElementById('idoctor_text');
+  if (!appt) {
+    if (dateEl) dateEl.value = todayString();
+    if (pidEl) pidEl.value = '';
+    if (nameEl) nameEl.value = '';
+    if (docEl) docEl.value = '';
+    return;
+  }
+  if (dateEl) dateEl.value = appt.date || todayString(); // old appointment creates old-date revenue, not today's
+  if (refEl && !refEl.value) refEl.value = 'INV' + String(invoices.length + 1).padStart(3, '0');
+  if (pidEl) pidEl.value = (patient && patient.id) || appt.patientId || '';
+  if (nameEl) nameEl.value = (patient && patient.name) || appt.name || '';
+  if (docEl) docEl.value = normalizeDoctorName(appt.doctor);
+}
+
+function addInvoice(e) {
+  if (e) e.preventDefault();
+  refreshInvoiceAppointmentOptions();
+  var apptId = document.getElementById('iappointment') ? document.getElementById('iappointment').value : '';
+  var appt = appointments.find(function(a) { return a.id === apptId; });
+  if (!appt || normalizeStatusText(appt.status) !== 'Completed') {
+    showToast('Please select a completed appointment before generating an invoice.', 'error');
+    return;
+  }
+  var patient = getPatientByAppointment(appt);
+  var already = invoices.some(function(inv) { return inv.appointmentId === appt.id; });
+  if (already && !confirm('This appointment already has an invoice. Create another invoice anyway?')) return;
+  var fee = parseInt(document.getElementById('ifee').value, 10) || 0;
+  var med = parseInt(document.getElementById('imed').value, 10) || 0;
+  var other = parseInt(document.getElementById('iother').value, 10) || 0;
+  var inv = {
+    ref: document.getElementById('iref').value.trim() || ('INV' + String(invoices.length + 1).padStart(3, '0')),
+    appointmentId: appt.id,
+    appointmentDate: appt.date || '',
+    date: document.getElementById('idate').value || appt.date || todayString(),
+    patientId: (patient && patient.id) || appt.patientId || '',
+    name: (patient && patient.name) || appt.name || '',
+    doctor: appt.doctor,
+    fee: fee,
+    med: med,
+    other: other,
+    total: fee + med + other,
+    paid: false
+  };
+  invoices.push(inv);
+  renderInvoices();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  if (e && e.target) e.target.reset();
+  refreshInvoiceAppointmentOptions();
+  showToast('Invoice ' + inv.ref + ' generated for ' + inv.name + ' on ' + inv.date + '.');
+}
+
+function makeConsultationAppointmentBased() {
+  var form = document.querySelector('#consultation form');
+  if (!form || form.getAttribute('data-linked-note') === 'yes') return;
+  form.setAttribute('data-linked-note', 'yes');
+  var note = document.createElement('div');
+  note.className = 'role-lock-note';
+  note.style.display = 'block';
+  note.innerHTML = 'Open a patient from <strong>Appointments</strong> to auto-fill Patient ID, patient details, doctor and visit date. Only consultation findings need to be entered here.';
+  form.parentNode.insertBefore(note, form);
+}
+
+function lockConsultationPatientFields(lock) {
+  ['cname','cage','cgender','cdoctor','cvisit'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.disabled = !!lock;
+  });
+}
+
+function startConsultationFromAppointment(i) {
+  ensureAppointmentIds();
+  var appt = appointments[i];
+  if (!appt) return;
+  activeAppointmentIndex = i;
+  appt.status = 'In Consultation';
+  var patient = getPatientByAppointment(appt) || { name: appt.name, age: '', gender: 'Male', doctor: appt.doctor, visit: appt.visit || 'First Visit' };
+  showPage('consultation', document.querySelector('nav button[onclick*="consultation"]'));
+  var values = {
+    cname: patient.name || appt.name || '',
+    cage: patient.age || '',
+    cdoctor: appt.doctor || patient.doctor || '',
+    ccomp: appt.reason || patient.diag || '',
+    cvisit: appt.visit || patient.visit || 'First Visit'
+  };
+  Object.keys(values).forEach(function(id) { var el = document.getElementById(id); if (el) el.value = values[id]; });
+  var gender = document.getElementById('cgender'); if (gender) gender.value = patient.gender || 'Male';
+  var notes = document.getElementById('cnotes'); if (notes && !notes.value) notes.value = 'Appointment date: ' + (appt.date || '') + ', time: ' + (appt.time || '');
+  lockConsultationPatientFields(true);
+  renderAppointments();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Appointment loaded. Enter diagnosis/medication and save consultation.');
+}
+
+var previousRenderAppointmentsLinkedPatch = window.renderAppointments;
+window.renderAppointments = function() {
+  ensureAppointmentIds();
+  if (typeof previousRenderAppointmentsLinkedPatch === 'function') previousRenderAppointmentsLinkedPatch();
+  refreshInvoiceAppointmentOptions();
+};
+
+var previousRenderInvoicesLinkedPatch = window.renderInvoices;
+window.renderInvoices = function() {
+  if (typeof previousRenderInvoicesLinkedPatch === 'function') previousRenderInvoicesLinkedPatch();
+  refreshInvoiceAppointmentOptions();
+};
+
+var previousAddConsultationLinkedPatch = window.addConsultation;
+window.addConsultation = function(e) {
+  if (e) e.preventDefault();
+  var appt = activeAppointmentIndex >= 0 ? appointments[activeAppointmentIndex] : null;
+  if (!appt) {
+    showToast('Please open consultation from an appointment first.', 'error');
+    return;
+  }
+  var patient = getPatientByAppointment(appt);
+  var c = {
+    name: (patient && patient.name) || appt.name || document.getElementById('cname').value.trim(),
+    patientId: (patient && patient.id) || appt.patientId || '',
+    appointmentId: appt.id,
+    appointmentDate: appt.date || '',
+    date: appt.date || todayString(),
+    visit: document.getElementById('cvisit').value,
+    age: document.getElementById('cage').value,
+    gender: document.getElementById('cgender').value,
+    doctor: appt.doctor || document.getElementById('cdoctor').value,
+    comp: document.getElementById('ccomp').value.trim(),
+    diag: document.getElementById('cdiag').value.trim(),
+    med: document.getElementById('cmed').value.trim(),
+    follow: document.getElementById('cfollow').value,
+    notes: document.getElementById('cnotes').value.trim()
+  };
+  if (!c.diag) { showToast('Diagnosis is required.', 'error'); return; }
+  consultations.push(c);
+  appt.status = 'Completed';
+  if (patient) {
+    patient.status = 'Discharged';
+    patient.doctor = c.doctor;
+    patient.diag = c.diag;
+    patient.visit = c.visit;
+  }
+  activeAppointmentIndex = -1;
+  lockConsultationPatientFields(false);
+  if (e && e.target) e.target.reset();
+  renderConsultations();
+  renderAppointments();
+  renderPatients();
+  renderInvoices();
+  updateDashboard();
+  if (typeof saveToBackend === 'function') saveToBackend();
+  showToast('Consultation saved. Appointment completed and ready for invoice.');
+};
+
+var previousShowPageLinkedPatch = window.showPage;
+window.showPage = function(id, btn) {
+  if (typeof previousShowPageLinkedPatch === 'function') previousShowPageLinkedPatch(id, btn);
+  if (id === 'invoice') refreshInvoiceAppointmentOptions();
+  if (id === 'consultation') makeConsultationAppointmentBased();
+};
+
+window.addEventListener('load', function() {
+  ensureAppointmentIds();
+  setupLinkedInvoiceForm();
+  refreshInvoiceAppointmentOptions();
+  makeConsultationAppointmentBased();
+  lockConsultationPatientFields(false);
+  renderAppointments();
+  renderInvoices();
+  updateDashboard();
+});
+</script>
+
+</body>
+</html>
+
